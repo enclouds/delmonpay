@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.enclouds.delmonpay.ctrt.mapper.CtrtMapper">
+
+	<insert id="insertCtrt" parameterType="com.enclouds.delmonpay.ctrt.dto.CtrtDto">
+		INSERT INTO dcp_monpay_ctrt
+		( agent_code
+		, ctrt_name
+		, address
+		, address_dtl
+		, deposit_name
+		, rcv_user_nm
+		, rcv_price
+		, bank_cd
+		, bank_num
+		, file_01
+		, file_02
+		, file_03
+		, status_cd
+		, reg_date
+		, reg_user_id
+		, file_01_yn
+		, file_02_yn
+		, file_03_yn
+		, file_01_name
+		, file_02_name
+		, file_03_name)
+		VALUES
+		( #{agentCode}
+		, #{ctrtName}
+		, #{address}
+		, #{addressDtl}
+		, #{depositName}
+		, #{rcvUserNm}
+		, #{rcvPrice}
+		, #{bankCd}
+		, #{bankNum}
+		, #{img01}
+		, #{img02}
+		, #{img03}
+		, 136
+		, NOW()
+		, #{userId}
+		, #{file01Yn}
+		, #{file02Yn}
+		, #{file03Yn}
+		, #{file01Name}
+		, #{file02Name}
+		, #{file03Name})
+	</insert>
+
+	<select id="selectCtrtList" parameterType="int" resultType="com.enclouds.delmonpay.ctrt.dto.CtrtDto">
+		select dmc.seq
+		, dmc.agent_code
+		, dmc.ctrt_name
+		, dmc.address
+		, dmc.address_dtl
+		, dmc.deposit_name
+		, dmc.rcv_user_nm
+		, format(dmc.rcv_price, 0) as rcv_price_str
+		, dmc.bank_cd
+		, dmc.bank_num
+		, case when (select min(minus_price) from dcp_spc_charge_mon where ctrt_seq = dmc.seq and resultCd = '0000') > 0
+			then dmc.status_cd
+			else case when (select send_gbn from dcp_spc_charge_mon where ctrt_seq = dmc.seq and resultCd = '0000') = 'CANCEL'
+			then '140'
+			when (select ifnull(rentResultCd, '') from dcp_spc_charge_mon where ctrt_seq = dmc.seq and resultCd = '0000') = ''
+			then '999'
+			else dmc.status_cd
+			end
+			end as status_cd
+		, dmc.reg_date
+		, dmc.reg_user_id
+		, dmc.file_01
+		, dmc.file_02
+		, dmc.file_03
+		, (select count(*) from dcp_spc_charge_mon where ctrt_seq = dmc.seq) as payCount
+		, dmc.rcv_price - ifnull((select sum(rentAmt) from dcp_spc_charge_mon dscm2 where dscm2.ctrt_seq = dmc.seq and (dscm2.resultCd ='0000')) , 0) as minusPrice
+		from dcp_monpay_ctrt dmc
+		where 1=1
+		and agent_code = #{agentCode}
+		order by dmc.reg_date DESC
+	</select>
+
+	<select id="selectCtrtInfo" parameterType="com.enclouds.delmonpay.ctrt.dto.CtrtDto" resultType="com.enclouds.delmonpay.ctrt.dto.CtrtDto">
+		select *
+		, ifnull(file_01, '') as img01
+		, ifnull(file_02, '') as img02
+		, ifnull(file_03, '') as img03
+		, ifnull(file_04, '') as img04
+		<if test='wolsaeGbn != null and wolsaeGbn.equals( "W")'>
+			, (select code_nm from dcp_cmm_code where 1=1 and grp_code = 9 and code_value_01 = bank_cd) as bankNm
+		</if>
+		<if test='wolsaeGbn != null and wolsaeGbn.equals( "L")'>
+			, (select code_nm from dcp_cmm_code where 1=1 and grp_code = 12 and code_value_01 = bank_cd) as bankNm
+		</if>
+		, dmc.rcv_price - ifnull((select sum(dscm.def_price) + #{rcvPrice} from dcp_spc_charge_mon dscm where dscm.ctrt_seq = dmc.seq and (dscm.resultCd ='0000')), 0) as minusPrice
+		, count(dscm2.ctrt_seq ) as payCount
+		from dcp_monpay_ctrt dmc
+		left join dcp_spc_charge_mon dscm2 on dscm2.ctrt_seq = dmc.seq
+		where 1=1
+		and seq = #{seq}
+	</select>
+
+	<update id="deleteFile01" parameterType="com.enclouds.delmonpay.ctrt.dto.CtrtDto">
+		UPDATE dcp_monpay_ctrt
+		SET file_01 = ''
+		, file_01_yn = 'N'
+		, file_01_name = ''
+		WHERE 1=1
+		AND seq = #{seq}
+	</update>
+
+	<update id="deleteFile02" parameterType="com.enclouds.delmonpay.ctrt.dto.CtrtDto">
+		UPDATE dcp_monpay_ctrt
+		SET file_02 = ''
+		, file_02_yn = 'N'
+		, file_02_name = ''
+		WHERE 1=1
+		AND seq = #{seq}
+	</update>
+
+	<update id="deleteFile03" parameterType="com.enclouds.delmonpay.ctrt.dto.CtrtDto">
+		UPDATE dcp_monpay_ctrt
+		SET file_03 = ''
+		, file_03_yn = 'N'
+		, file_03_name = ''
+		WHERE 1=1
+		AND seq = #{seq}
+	</update>
+
+	<update id="updateCtrt" parameterType="com.enclouds.delmonpay.ctrt.dto.CtrtDto">
+		UPDATE dcp_monpay_ctrt
+		SET ctrt_name = #{ctrtName}
+		, address = #{address}
+		, address_dtl = #{addressDtl}
+		, deposit_name = #{depositName}
+		, rcv_price = #{rcvPrice}
+		, rcv_user_nm = #{rcvUserNm}
+		, bank_cd = #{bankCd}
+		, bank_num = #{bankNum}
+		, status_cd = 136
+
+		<if test='file01Yn != null and file01Yn.equals( "U")' >
+			, file_01 = #{img01}
+			, file_01_yn = 'Y'
+			, file_01_name = #{file01Name}
+		</if>
+
+		<if test='file02Yn != null and file02Yn.equals( "U")' >
+			, file_02 = #{img02}
+			, file_02_yn = 'Y'
+			, file_02_name = #{file02Name}
+		</if>
+
+		<if test='file03Yn != null and file03Yn.equals( "U")' >
+			, file_03 = #{img03}
+			, file_03_yn = 'Y'
+			, file_03_name = #{file03Name}
+		</if>
+
+		WHERE 1=1
+		AND seq = #{seq}
+	</update>
+
+	<delete id="deleteCtrt" parameterType="com.enclouds.delmonpay.ctrt.dto.CtrtDto">
+		DELETE from dcp_monpay_ctrt
+		WHERE 1=1
+		AND seq = #{seq}
+	</delete>
+
+	<insert id="paymentCtrt" parameterType="com.enclouds.delmonpay.ctrt.dto.LetsApprDto">
+		INSERT INTO dcp_mon_approval
+		( ctrt_seq
+		, shopcode
+		, loginid
+		, servicecode
+		, order_req_amt
+		, receiveType
+		, order_goodsname
+		, order_name
+		, order_hp
+		, order_email
+		, req_cardNo
+		, req_cardmonth
+		, req_cardyear
+		, req_installment
+		, comp_orderno
+		, comp_memno
+		, sh_bisno
+		, sh_bisname
+		, sh_bankcd
+		, sh_bankno
+		, reg_date
+		, errCode
+		, errMessage
+		, orderno
+		, appr_no
+		, appr_tranNo
+		, appr_shopCode
+		, appr_date
+		, appr_time
+		, cardtxt
+		, cardcode
+		, comp_acctamt
+		, memb_acctamt
+		, send_gbn
+		, def_price
+		, minus_price)
+		VALUES
+		( #{ctrtSeq}
+		, #{shopcode}
+		, #{loginid}
+		, #{servicecode}
+		, #{orderReqAmt}
+		, #{receiveType}
+		, #{orderGoodsname}
+		, #{orderName}
+		, #{orderHp}
+		, #{orderEmail}
+		, #{reqCardNo}
+		, #{reqCardmonth}
+		, #{reqCardyear}
+		, #{reqInstallment}
+		, #{compOrderno}
+		, #{compMemno}
+		, #{shBisno}
+		, #{shBisname}
+		, #{shBankcd}
+		, #{shBankno}
+		, NOW()
+		, #{errCode}
+		, #{errMessage}
+		, #{orderno}
+		, #{apprNo}
+		, #{apprTranNo}
+		, #{apprShopCode}
+		, #{apprDate}
+		, #{apprTime}
+		, #{cardtxt}
+		, #{cardcode}
+		, #{compAcctamt}
+		, #{membAcctamt}
+		, #{sendGbn}
+		, #{defPrice}
+		, #{minusPrice})
+	</insert>
+
+	<update id="ctrtStatusConfirm" parameterType="com.enclouds.delmonpay.ctrt.dto.CtrtDto">
+		UPDATE dcp_monpay_ctrt
+		SET status_cd = 140
+		WHERE 1=1
+		AND seq = #{seq}
+	</update>
+
+	<select id="selectCtrtPayList" parameterType="com.enclouds.delmonpay.ctrt.dto.CtrtDto" resultType="com.enclouds.delmonpay.ctrt.dto.CtrtDto">
+		select date_format(dscm.reg_date, '%m월 %d일') as reg_date
+		, date_format(dscm.tranReqDt, '%m월 %d일') as tranReqDt
+		, dmc.ctrt_name
+		, dscm.send_gbn
+		, dscm.resultCd
+		, dmc.bank_cd
+		, (select code_nm from dcp_cmm_code where 1=1 and grp_code = 9 and code_value_01 = dscm.bankCd) as bankNm
+		, dmc.rcv_user_nm
+		, dscm.def_price
+		, date_format(dscm.reg_date, '%Y-%m-%d %H:%i:%s') as reg_date_time
+		, dscm.cardtxt
+		, dscm.apprAmt
+		, replace(dscm.req_cardNo ,substring(dscm.req_cardNo ,9,4),'****') as req_cardNo
+		, dmc.deposit_name
+		, dmc.bank_num
+		, dscm.minus_price as minus_price_list
+		, dmc.rcv_price
+		, dscm.rentResultCd
+		, dscm.approvalNo
+		, ifnull(date_format( dscm.rentSendDate, '%m월 %d일'), '') as rentSendDate
+		, dscm.reqDt
+		, dscm.reqTm
+		, dscm.reqSeq
+		, dscm.wpsSeq
+		, dscm.approvalNo
+		, dscm.send_gbn
+		, dscm.cancel_yn
+		, dam.card_sell_mm
+		from dcp_monpay_ctrt dmc
+		join dcp_spc_charge_mon dscm on dmc.seq = dscm.ctrt_seq
+		left join dcp_approval_mon dam on dam.order_no = dscm.cardOrderNo
+		where 1=1
+		and dscm.resultCd = '0000'
+		and date_format(dscm.reg_date, '%Y') = #{schYear}
+		and dmc.agent_code = #{agentCode}
+
+		<if test='schGbn != null and schGbn.equals("DESC")'>
+			ORDER BY dscm.reg_date DESC
+		</if>
+
+		<if test='schGbn != null and schGbn.equals("PRICE")'>
+			ORDER BY dmc.rcv_price DESC
+		</if>
+
+		<if test='schGbn != null and schGbn.equals("ASC")' >
+			ORDER BY dscm.reg_date ASC
+		</if>
+
+	</select>
+
+	<insert id="inertReCtrtInfo" parameterType="com.enclouds.delmonpay.ctrt.dto.CtrtDto">
+		INSERT INTO dcp_monpay_ctrt
+		( agent_code
+		, ctrt_name
+		, address
+		, address_dtl
+		, deposit_name
+		, rcv_user_nm
+		, rcv_price
+		, bank_cd
+		, bank_num
+		, file_01
+		, file_02
+		, file_03
+		, file_04
+		, status_cd
+		, reg_date
+		, reg_user_id
+		, file_01_yn
+		, file_02_yn
+		, file_03_yn
+		, file_04_yn
+		, file_01_name
+		, file_02_name
+		, file_03_name
+		, file_04_name)
+		SELECT agent_code
+		, ctrt_name
+		, address
+		, address_dtl
+		, deposit_name
+		, rcv_user_nm
+		, rcv_price
+		, bank_cd
+		, bank_num
+		, file_01
+		, file_02
+		, file_03
+		, file_04
+		, '136'
+		, NOW()
+		, #{userId}
+		, file_01_yn
+		, file_02_yn
+		, file_03_yn
+		, file_04_yn
+		, file_01_name
+		, file_02_name
+		, file_03_name
+		, file_04_name
+		FROM dcp_monpay_ctrt
+		WHERE 1=1 AND seq = #{seq}
+	</insert>
+
+	<insert id="insertApprovalMonInfo" parameterType="com.enclouds.delmonpay.ctrt.dto.ApiApprovalDto">
+		INSERT INTO dcp_approval_mon
+		(ORDER_NO
+		,AGENT_CODE
+		,PAY_TYPE
+		,PAY_METHOD
+		,CARD_NO
+		,CARD_EXPIRY_YM
+		,USER_NAME
+		,AMOUNT
+		,PRODUCT_NAME
+		,CARD_SELL_MM
+		,REG_DATE
+		,REG_USER_ID
+		,PAY_ROOT
+		,BIRTHDAY
+		,CARDPW)
+		VALUES(
+		#{orderNo}
+		,#{agentCode}
+		,82
+		,79
+		,#{cardNo}
+		,#{cardExpiryYm}
+		,#{userName}
+		,#{amount}
+		,#{productName}
+		,#{cardSellMm}
+		,NOW()
+		,'SYSTEM'
+		,#{payRoot}
+		,#{birthday}
+		,#{cardPw})
+	</insert>
+
+	<insert id="insertApprovalMonInfoRtn" parameterType="com.enclouds.delmonpay.ctrt.dto.ApiApprovalRtnDto">
+		INSERT INTO dcp_approval_rtn_mon
+		(ORDER_NO
+		,MID
+		,TRANSACTION_NO
+		,APPROVAL_NO
+		,APPROVAL_YMDHMS
+		,AMOUNT
+		,CARD_CODE
+		,CARD_NAME
+		,CARD_SELL_MM
+		,USER_NAME
+		,PRODUCT_NAME
+		,RESULT_CODE
+		,RESULT_MESSAGE)
+		VALUES
+		(#{order_no}
+		,#{mid}
+		,#{transaction_no}
+		,#{approval_no}
+		,#{apporval_ymdhms}
+		,#{amount}
+		,#{card_code}
+		,#{card_name}
+		,#{card_sell_mm}
+		,#{user_name}
+		,#{product_name}
+		,#{result_code}
+		,#{result_message})
+	</insert>
+
+	<select id="selectUseDayCheck" parameterType="com.enclouds.delmonpay.ctrt.dto.CtrtDto" resultType="com.enclouds.delmonpay.ctrt.dto.HoliDto">
+		SELECT holiday_nm
+		from dcp_holiday
+		where date = #{date}
+	</select>
+
+</mapper>
+
+

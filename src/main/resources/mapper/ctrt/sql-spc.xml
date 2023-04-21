@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.enclouds.delmonpay.ctrt.mapper.SPCMapper">
+
+	<select id="selectReqSeqInfo" resultType="String">
+		select lpad(ifnull(max(dscrl.reqSeq)+1,1), 5, 0)
+		from dcp_spc_charge_mon dscrl
+		where dscrl.reqDt = date_format(now(), '%Y%m%d')
+	</select>
+
+	<insert id="insertSpcInfo"  parameterType="com.enclouds.delmonpay.ctrt.dto.SPCDto">
+		INSERT INTO dcp_spc_charge_mon
+		(ctrt_seq
+		,reqDt
+		,reqTm
+		,tranReqDt
+		,reqSeq
+		,wpsSeq
+		,dealCd
+		,delionNo
+		,bizRegNo
+		,custNm
+		,approvalNo
+		,bankCd
+		,virAccNo
+		,depositor
+		,remittor
+		,apprAmt
+		,delionFee
+		,rentAmt
+		,reg_date
+		,send_gbn
+		,def_price
+		,cardtxt
+		,req_cardNo
+		,minus_price
+		,cardOrderNo
+		,tax_gbn
+		,tax_num)
+		VALUES
+		(#{ctrtSeq}
+		,#{reqDt}
+		,#{reqTm}
+		,#{tranReqDt}
+		,#{reqSeq}
+		,#{wpsSeq}
+		,#{dealCd}
+		,#{delionNo}
+		,#{bizRegNo}
+		,#{custNm}
+		,#{approvalNo}
+		,#{bankCd}
+		,#{virAccNo}
+		,#{depositor}
+		,#{remittor}
+		,#{apprAmt}
+		,#{delionFee}
+		,#{rentAmt}
+		,NOW()
+		,#{sendGbn}
+		,#{defPrice}
+		,#{cardtxt}
+		,#{reqCardNo}
+		,#{minusPrice}
+		,#{cardOrderNo}
+		,#{taxGbn}
+		,#{taxNum})
+	</insert>
+
+	<select id="selectSpcInfo" parameterType="com.enclouds.delmonpay.ctrt.dto.SPCDto" resultType="com.enclouds.delmonpay.ctrt.dto.SPCDto">
+		select *
+		from dcp_spc_charge_mon
+		where 1=1
+		and reqDt = #{reqDt}
+		and reqTm = #{reqTm}
+		and reqSeq = #{reqSeq}
+		and wpsSeq = #{wpsSeq}
+		and approvalNo = #{approvalNo}
+	</select>
+
+	<update id="updateCancelInfo" parameterType="com.enclouds.delmonpay.ctrt.dto.SPCDto">
+		UPDATE dcp_spc_charge_mon
+		SET send_gbn = 'CANCEL'
+		and reqDt = #{reqDt}
+		and reqTm = #{reqTm}
+		and reqSeq = #{reqSeq}
+		and wpsSeq = #{wpsSeq}
+		and approvalNo = #{approvalNo}
+	</update>
+
+	<select id="selectCardApprovalInfo" parameterType="com.enclouds.delmonpay.ctrt.dto.SPCDto" resultType="com.enclouds.delmonpay.ctrt.dto.ApiCancelDto">
+		SELECT *
+		FROM dcp_approval_rtn_mon
+		WHERE 1=1
+		AND transaction_no = #{transactionNo}
+	</select>
+
+	<insert id="insertCardCancelInfo" parameterType="com.enclouds.delmonpay.ctrt.dto.ApiCancelDto">
+		INSERT INTO dcp_cancel_mon
+		(PAY_TYPE
+		,TRANSACTION_TYPE
+		,USER_ID
+		,TRANSACTION_NO
+		,AMOUNT
+		,CANCEL_REASON
+		,IP_ADDRESS
+		,CALC_TYPE
+		,REG_DATE
+		,REG_USER_ID)
+		VALUES
+		(82
+		,#{transactionType}
+		,#{userId}
+		,#{transactionNo}
+		,#{amount}
+		,#{cancelReason}
+		,#{ipAddress}
+		,#{cancelReason}
+		,NOW()
+		,'SYSTEM')
+	</insert>
+
+	<insert id="insertCancelRtnInfo" parameterType="com.enclouds.delmonpay.ctrt.dto.ApiCancelRtnDto">
+		INSERT INTO dcp_cancel_rtn_mon
+		(ORDER_NO
+		,AMOUNT
+		,CANCEL_AMOUNT
+		,REMAIN_AMOUNT
+		,PAY_TYPE
+		,CANCEL_YMDHMS
+		,TRANSACTION_NO
+		,RESULT_CODE
+		,RESULT_MESSAGE)
+		VALUES
+		(#{order_no}
+		,#{amount}
+		,#{cancel_amount}
+		,#{remain_amount}
+		,82
+		,#{cancel_ymdhms}
+		,#{transaction_no}
+		,#{result_code}
+		,#{result_message})
+	</insert>
+
+</mapper>

@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+	<div th:replace="/fragments/header.html :: fragment-header"></div>
+</head>
+
+<body>
+
+<form id="ctrtForm" name="ctrtForm" method="post">
+	<input type="hidden" name="bankCd" id="bankCd" th:value="${ctrtInfo.bankCd}">
+	<input type="hidden" name="seq" id="seq" th:value="${ctrtInfo.seq}">
+	<input type="hidden" name="agentCode" id="agentCode" th:value="${userDto.agentCode}">
+	<input type="hidden" name="userId" id="userId" th:value="${userDto.userId}">
+	<input type="hidden" name="minusPrice" id="minusPrice" th:value="${ctrtInfo.minusPrice}">
+	<input type="hidden" name="referer" id="referer" th:value="${referer}">
+	<input type="hidden" name="tranReqDtVal" id="tranReqDtVal" value="">
+	<input type="hidden" name="today" id="today" th:value="${today}">
+	<input type="hidden" name="sendGbn" id="sendGbn" value="RESERVATION"/>
+
+	<div id="wrap">
+
+		<header id="header" class="header">
+			<div class="inr-c">
+				<a href="#a">
+					<button type="button" class="btn-back" id="btn_back"><span>뒤로</span></button>
+				</a>
+				<h1 class="tit" th:text="${ctrtInfo.ctrtName}"></h1>
+				</a>
+			</div>
+		</header><!--//header -->
+
+		<div id="container" class="container sub">
+			<div class="inr-c">
+				<div class="box_bank">
+					<p class="t1"><span class="c-black" th:text="${ctrtInfo.rcvUserNm}"></span> 님에게 이체할 금액 <span class="c-black" th:text="|${#numbers.formatInteger(ctrtInfo.minusPrice, 0, 'COMMA')} 원|"></span></p>
+					<p class="t2" th:text="|${ctrtInfo.bankNm} ${ctrtInfo.bankNum}|"></p>
+					<div class="icon"><img th:src="|../../images/l_bank_${ctrtInfo.bankCd}.svg|" th:alt="${ctrtInfo.bankNm}"></div>
+				</div>
+
+				<div class="mt40">
+					<!--<span class="title flex aic jcc">이체할 금액을 입력하세요.</span>-->
+					<div class="txt_bank">
+						<div id="virtual_dom" th:text="${#numbers.formatInteger(ctrtInfo.minusPrice, 0, 'COMMA')}"></div>
+						<input type="text" id="rcvPrice" name="rcvPrice" th:value="${#numbers.formatInteger(ctrtInfo.minusPrice, 0, 'COMMA')}" class="textNum" placeholder="0" onchange="fnVatPriceChange(this);" readonly>
+						<p>원</p>
+					</div>
+				</div>
+
+				<div class="flex aic jcc mb40">
+					<div class="pos-r">
+						총
+						<span><span class="c-red fw600" id="vatPrice2" th:text="${#numbers.formatInteger(payRealAmt, 0, 'COMMA')}"></span>원이 결제됩니다.</span>
+						<div class="box_i a1 flex aic jcc ml5">
+							<button type="button" class="btn_i"><span class="ico">도움말</span></button>
+							<div class="c">
+								<p>이용 수수료 4.4% 및 VAT를 포함한 최종 결제금액입니다.
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<section class="area_inp pr-mb1">
+					<h2 class="h_tit1">카드 정보</h2>
+
+					<div class="box mb8">
+						<label for="reqCardNo" class="h1 mb0">카드번호</label>
+						<input type="text" id="reqCardNo" name="reqCardNo" class="inp_txt w100p" placeholder="‘-’없이 숫자만 입력"  maxlength='16' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" >
+					</div>
+					<div class="box mb8">
+						<label for="cardExpiryYm" class="h1 mb0">유효기간</label>
+						<input type="text" id="cardExpiryYm" name="cardExpiryYm" class="inp_txt w100p" placeholder="MMYY (예 : 0521)" maxlength='4' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" >
+					</div>
+					<!--<div class="box mb8">
+						<label for="birthday" class="h1 mb0">생년월일(yymmdd)</label>
+						<input type="password" id="birthday" name="birthday" class="inp_txt w100p" placeholder="‘-’없이 숫자만 입력"  maxlength='6' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" >
+					</div>
+					<div class="box mb8">
+						<label for="cardPw" class="h1 mb0">카드비밀번호(앞2자리)</label>
+						<input type="password" id="cardPw" name="cardPw" class="inp_txt w100p" placeholder="앞2자리"  maxlength='2' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" >
+					</div>-->
+					<div class="box">
+						<label for="cardSellMm" class="h1 mb0">할부개월</label>
+						<select id="cardSellMm" name="cardSellMm" class="select1 w100p" required>
+							<option th:if="${userDto.wolsaeGbn == 'L'}" value="">일시불</option>
+							<option th:if="${userDto.wolsaeGbn == 'W'}" value="00">일시불</option>
+							<option value="02">2개월</option>
+							<option value="03">3개월</option>
+							<option value="04">4개월</option>
+							<option value="05">5개월</option>
+							<option value="06">6개월</option>
+							<option value="07">7개월</option>
+							<option value="08">8개월</option>
+							<option value="09">9개월</option>
+							<option value="10">10개월</option>
+							<option value="11">11개월</option>
+							<option value="12">12개월</option>
+						</select>
+					</div>
+					<!--20221124 수정 및 추가됨-->
+					<div class="flex aie jce mt8">
+						<a href="#" onclick="fnLocation('https://deliongroup.notion.site/6d6feb92d7e34ee98da946b27a529aa9');" class="halbubutton">할부 카드정보 확인 ></a>
+					</div>
+					<!--//20221124 수정 및 추가됨-->
+				</section>
+
+				<!--20221124 추가-->
+				<section class="area_inp pr-mb1">
+					<h2 class="h_tit1">수수료 현금영수증 및 세금계산서</h2>
+
+					<div class="box mb8">
+						<label for="taxGbn" class="h1 mb0 pos-r">발급유형</label>
+						<select id="taxGbn" name="taxGbn" class="select1 w100p">
+							<option value="">발급 안함</option>
+							<option id="s5" value="CASH_PHONE">현금영수증(휴대폰번호)</option>
+							<option id="s6" value="CASH_BIZ">현금영수증(사업자번호)</option>
+							<option id="s7" value="TAX">세금계산서</option>
+						</select>
+					</div>
+					<div id="forms5" class="box">
+						<label for="taxNum_01" class="h1 mb0">휴대폰번호</label>
+						<input type="text" id="taxNum_01" class="inp_txt w100p" name="taxNum" placeholder="‘-’없이 숫자만 입력"  maxlength='11' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" >
+					</div>
+					<div id="forms6" class="box">
+						<label for="taxNum_02" class="h1 mb0">사업자번호</label>
+						<input type="text" id="taxNum_02" class="inp_txt w100p" name="taxNum" placeholder="‘-’없이 숫자만 입력"  maxlength='11' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" >
+					</div>
+					<div id="forms7" class="box">
+						<label for="taxNum_03" class="h1 mb0">사업자번호</label>
+						<input type="text" id="taxNum_03" class="inp_txt w100p" name="taxNum" placeholder="‘-’없이 숫자만 입력"  maxlength='10' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" >
+					</div>
+
+				</section>
+				<!--//20221124 추가-->
+
+				<div class="mt40"></div>
+
+				<section class="area_inp">
+					<h2 class="h_tit1">이체 정보 <span class="c-gray">*송금예정 및 완료 알림이 발송됩니다.</span></h2>
+
+					<!--<div class="box mb8">
+						<label for="sendGbn" class="h1 mb0 pos-r">송금속도
+
+							<div class="box_i">
+								<button type="button" class="btn_i"><span class="ico">도움말</span></button>
+								<div class="b">
+									<p th:if="${userDto.wolsaeGbn == 'L'}" >즉시송금 : 결제즉시 송금 (추가 수수료 +*%)</p>
+									<p th:if="${userDto.wolsaeGbn == 'W'}">일반송금 : 결제일 기준 1일 뒤 송금 (수수료4.4%)</p>
+									<p th:if="${userDto.wolsaeGbn == 'W'}">예약송금 : 선택한 예약 날짜에 송금 (수수료4.4%)</p>
+								</div>
+							</div>
+						</label>
+						<select id="sendGbn" name="sendGbn" class="select1 w100p" required>
+							<option th:if="${userDto.wolsaeGbn == 'L'}" value="NOW">즉시 송금</option>
+							<option th:if="${userDto.wolsaeGbn == 'W'}" value="NORMAL">일반 송금</option>
+							<option th:if="${userDto.wolsaeGbn == 'W'}" id="s3" value="RESERVATION">예약 송금</option>
+						</select>
+					</div>-->
+
+					<div class="songgumday-dropbox box">
+						<p class="h1 mb0">송금일</p>
+						<button type="button" id="tranReqDt" class="select1" onclick="openLayerPopupDay('popDay1');" th:text="-일자선택-"></button>
+					</div>
+
+				</section>
+
+				<div class="box_infor mt20">
+					<label class="inp_checkbox"><input type="checkbox" id="check_all"><span class="c-red fz1">전체동의 및 확인</span></label>
+					<label class="inp_checkbox mt20"><input type="checkbox" id="check_01" name="check_01"><span>카드 결제 및 이체를 위한 <a href="#" onclick="fnLocation('http://storebs.co.kr/13#tab-1BN2vj');" class="line c-red">서비스 이용 동의</a> 내용을 확인 하였으며, 이에 동의합니다.</span></label>
+					<label class="inp_checkbox mt5"><input type="checkbox" id="check_02" name="check_02"><span>이용 수수료 4.4% 및 VAT를 포함하여 총 <span class="c-black fw400" id="vatPrice" th:text="${#numbers.formatInteger(payRealAmt, 0, 'COMMA')}"></span>원이 결제됩니다.</span></label>
+					<label class="inp_checkbox mt5 normal" for="check_03"><input type="checkbox" id="check_03" name="check_03"><span>결제수수료를 제외한 월세에 대한 현금영수증 및 세금계산서 발행은 임대인에게 요청하셔야합니다.</span></label>
+					<label class="inp_checkbox mt5 normal" for="check_04"><input type="checkbox" id="check_04" name="check_04"><span>선택한 송금일 <span class="c-black fw400"> 오전 11시</span>에 송금됩니다. 취소는 송금일 오전9시 이전까지 가능 합니다. 이후 취소가 불가능합니다.</span></label>
+				</div>
+
+				<div class="btn-bot mt10">
+					<button type="button" class="btn_submit" th:onclick="payment();" id="paymentBtn">결제</button>
+				</div>
+			</div>
+		</div><!--//container -->
+
+		<!-- 팝업 : 송금일 선택 -->
+		<div id="popDay1" class="layerPopup ty2 pop_days">
+			<div class="popup">
+				<div class="p_head">
+					<h2 class="tit">송금일 선택</h2>
+					<button type="button" class="b-close btn_p_close" id="reqDateBtnClose"><span>닫기</span></button>
+				</div>
+
+				<div class="p_cont pt10 pb10">
+					<div class="d-flex">
+						<div class="lst_swiper swiper1">
+							<div class="lst_line swiper-wrapper">
+								<div class="swiper-slide" id="currentYear2020"><a href="javascript:;">2020</a></div>
+								<div class="swiper-slide" id="currentYear2021"><a href="javascript:;">2021</a></div>
+								<div class="swiper-slide" id="currentYear2022"><a href="javascript:;">2022</a></div>
+								<div class="swiper-slide current" id="currentYear2023"><a href="javascript:;">2023</a></div>
+								<div class="swiper-slide" id="currentYear2024"><a href="javascript:;">2024</a></div>
+								<div class="swiper-slide" id="currentYear2025"><a href="javascript:;">2025</a></div>
+							</div>
+						</div>
+						<div class="lst_swiper ml10 swiper2">
+							<div class="lst_line swiper-wrapper">
+								<div class="swiper-slide" id="currentMon01"><a href="javascript:;">01</a></div>
+								<div class="swiper-slide" id="currentMon02"><a href="javascript:;">02</a></div>
+								<div class="swiper-slide" id="currentMon03"><a href="javascript:;">03</a></div>
+								<div class="swiper-slide" id="currentMon04"><a href="javascript:;">04</a></div>
+								<div class="swiper-slide" id="currentMon05"><a href="javascript:;">05</a></div>
+								<div class="swiper-slide" id="currentMon06"><a href="javascript:;">06</a></div>
+								<div class="swiper-slide" id="currentMon07"><a href="javascript:;">07</a></div>
+								<div class="swiper-slide" id="currentMon08"><a href="javascript:;">08</a></div>
+								<div class="swiper-slide" id="currentMon09"><a href="javascript:;">09</a></div>
+								<div class="swiper-slide" id="currentMon10"><a href="javascript:;">10</a></div>
+								<div class="swiper-slide" id="currentMon11"><a href="javascript:;">11</a></div>
+								<div class="swiper-slide" id="currentMon12"><a href="javascript:;">12</a></div>
+							</div>
+						</div>
+						<div class="lst_swiper ml10 swiper3">
+							<div class="lst_line swiper-wrapper">
+								<div class="swiper-slide" id="currentDay01"><a href="javascript:;">01</a></div>
+								<div class="swiper-slide" id="currentDay02"><a href="javascript:;">02</a></div>
+								<div class="swiper-slide" id="currentDay03"><a href="javascript:;">03</a></div>
+								<div class="swiper-slide" id="currentDay04"><a href="javascript:;">04</a></div>
+								<div class="swiper-slide" id="currentDay05"><a href="javascript:;">05</a></div>
+								<div class="swiper-slide" id="currentDay06"><a href="javascript:;">06</a></div>
+								<div class="swiper-slide" id="currentDay07"><a href="javascript:;">07</a></div>
+								<div class="swiper-slide" id="currentDay08"><a href="javascript:;">08</a></div>
+								<div class="swiper-slide" id="currentDay09"><a href="javascript:;">09</a></div>
+								<div class="swiper-slide" id="currentDay10"><a href="javascript:;">10</a></div>
+								<div class="swiper-slide" id="currentDay11"><a href="javascript:;">11</a></div>
+								<div class="swiper-slide" id="currentDay12"><a href="javascript:;">12</a></div>
+								<div class="swiper-slide" id="currentDay13"><a href="javascript:;">13</a></div>
+								<div class="swiper-slide" id="currentDay14"><a href="javascript:;">14</a></div>
+								<div class="swiper-slide" id="currentDay15"><a href="javascript:;">15</a></div>
+								<div class="swiper-slide" id="currentDay16"><a href="javascript:;">16</a></div>
+								<div class="swiper-slide" id="currentDay17"><a href="javascript:;">17</a></div>
+								<div class="swiper-slide" id="currentDay18"><a href="javascript:;">18</a></div>
+								<div class="swiper-slide" id="currentDay19"><a href="javascript:;">19</a></div>
+								<div class="swiper-slide" id="currentDay20"><a href="javascript:;">20</a></div>
+								<div class="swiper-slide" id="currentDay21"><a href="javascript:;">21</a></div>
+								<div class="swiper-slide" id="currentDay22"><a href="javascript:;">22</a></div>
+								<div class="swiper-slide" id="currentDay23"><a href="javascript:;">23</a></div>
+								<div class="swiper-slide" id="currentDay24"><a href="javascript:;">24</a></div>
+								<div class="swiper-slide" id="currentDay25"><a href="javascript:;">25</a></div>
+								<div class="swiper-slide" id="currentDay26"><a href="javascript:;">26</a></div>
+								<div class="swiper-slide" id="currentDay27"><a href="javascript:;">27</a></div>
+								<div class="swiper-slide" id="currentDay28"><a href="javascript:;">28</a></div>
+								<div class="swiper-slide" id="currentDay29"><a href="javascript:;">29</a></div>
+								<div class="swiper-slide" id="currentDay30"><a href="javascript:;">30</a></div>
+								<div class="swiper-slide" id="currentDay31"><a href="javascript:;">31</a></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="p_botm">
+					<button type="button" class="btn-pk red" id="reqDateBtn"><span>확인</span></button>
+				</div>
+			</div>
+		</div>
+
+		<!-- 팝업 : 토스트메세지 -->
+		<div id="popTost1" class="layerPopup3 pop_tost">
+			<div class="popup">
+				<p><span class="ico2 i_chk1">결제가 완료되었습니다.</span></p>
+				<a href="index.html" class="b-close3"><span class="ico_close">닫기</span></a>
+			</div>
+		</div>
+
+		<!-- 팝업 : 토스트메세지 -->
+		<div id="popTost2" class="layerPopup3 pop_tost ty2">
+			<div class="popup">
+				<p><span class="ico2 i_chk2" id="resultMessage">결제 실패. {실패 사유}</span></p>
+				<button type="button" class="b-close3"><span class="ico_close">닫기</span></button>
+			</div>
+		</div>
+
+		<!-- 팝업 : 서비스이용동의 -->
+		<div id="useok" class="layerPopup ty1 pop_addr">
+			<div class="popup">
+				<div class="p_head">
+					<h2 class="tit">서비스 이용동의</h2>
+					<button type="button" class="b-close btn_p_close"><span>닫기</span></button>
+				</div>
+
+				<div class="p_cont">
+					<!-- 서비스이용동의 -->
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+</body>
+
+<script th:inline="javascript">
+
+	$(document).ready( function() {
+		$("#forms5, #forms6, #forms7").hide();
+		$("#taxGbn").change(function () {
+			$("#forms5, #forms6, #forms7").hide();
+			$('#form' + $(this).find('option:selected').attr('id')).show();
+		});
+
+		$("#reqDateBtn").click(function(){
+			var year = $(".swiper1 .swiper-slide-active").text();
+			var mon = $(".swiper2 .swiper-slide-active").text();
+			var day = $(".swiper3 .swiper-slide-active").text();
+
+	  		if(isUseDay(year + "" + mon + "" + day)){
+				$("#tranReqDt").text(year + "-" + mon + "-" + day);
+				$("#tranReqDtVal").val(year + "-" + mon + "-" + day);
+
+				var $obj = $("#popDay1");
+
+				if (!$obj.hasClass("ty2")){
+					$obj.hide();
+				} else {
+					$obj.hide(0, function(){
+						$(this).find(".popup").animate({bottom:'-100%'}, 100);
+					});
+				}
+
+				$("body").removeClass("popfix");
+				$(".popup_dim").remove();
+			}
+	  	});
+
+	  	$("#reqDateBtnClose").click(function(){
+			var $obj = $("#popDay1");
+
+			if (!$obj.hasClass("ty2")){
+				$obj.hide();
+			} else {
+				$obj.hide(0, function(){
+					$(this).find(".popup").animate({bottom:'-100%'}, 100);
+				});
+			}
+
+			$("body").removeClass("popfix");
+			$(".popup_dim").remove();
+		});
+
+	  	$("#btn_back").click(function(){
+			window.location = '/?userId='+$("#userId").val()+'&schYear=&schGbn=DESC';
+		});
+	});
+
+	function isUseDay(strDay){
+		var isTrue;
+
+		var rYY = Number(strDay.substring(0,4));
+		var rMM = Number(strDay.substring(4,6));
+		var rDD = Number(strDay.substring(6,8));
+
+		var currDate = new Date();
+		currDate.setDate(currDate.getDate() + 1);
+		currDate.setHours(0);
+		currDate.setMinutes(0);
+		currDate.setSeconds(0);
+
+		var tDate = new Date(rYY + "-" + rMM + "-" + rDD + " 00:00:01");
+
+		if ( currDate <= tDate ) {
+			var formData = new FormData();
+
+			formData.append("date", strDay.substring(0,4) + "-" + strDay.substring(4,6) + "-" + strDay.substring(6,8));
+
+			$.ajax({
+				type: "POST",
+				url: "/ctrt/selectUseDayCheck",
+				data: formData,
+				async : false,
+				contentType : false,
+				processData : false,
+				success: function(response) {
+					if(response.resultCode == '00'){
+						isTrue = true;
+					}else {
+						alert("지정한 일자는 ["+response.resultMessage+"]로 사용할수 없습니다.");
+						isTrue = false;
+					}
+				},
+				error: function(error) {
+					alert("휴일일자 조회 실패");
+					isTrue = false;
+				}
+			});
+		}else {
+			alert("지정한 일자는 사용할수 없습니다.");
+			isTrue = false;
+		}
+
+		return Boolean(isTrue);
+	}
+
+	function openLayerPopupDay(id){
+		var $obj = $("#" +id);
+
+		var currentDate = $("#tranReqDt").text();
+		var currentDateArr = currentDate.split("-");
+
+		$("#currentYear"+currentDateArr[0]).addClass("current");
+		$("#currentMon"+currentDateArr[1]).addClass("current");
+		$("#currentDay"+currentDateArr[2]).addClass("current");
+
+		if ($(".swiper1").length > 0){
+			var swiper1 = new Swiper(".swiper1", {
+				direction: "vertical",
+				centeredSlides: true,
+				slidesPerView: 3,
+				observer: true,
+				observeParents: true,
+			});
+			swiper1.slideTo($(".swiper1 .current").index(), 1000, false);
+
+			var swiper2 = new Swiper(".swiper2", {
+				direction: "vertical",
+				centeredSlides: true,
+				slidesPerView: 3,
+				observer: true,
+				observeParents: true,
+			});
+			swiper2.slideTo($(".swiper2 .current").index(), 1000, false);
+
+			var swiper3 = new Swiper(".swiper3", {
+				direction: "vertical",
+				centeredSlides: true,
+				slidesPerView: 3,
+				observer: true,
+				observeParents: true,
+			});
+			swiper3.slideTo($(".swiper3 .current").index(), 1000, false);
+		}
+
+		$(".layerPopup").hide();
+		$("body").addClass("popfix");
+
+		if (!$obj.hasClass("ty2")){
+			$obj.fadeIn(100);
+			$obj.before("<div class='popup_dim ty1'></div>");
+		} else {
+			$("#" +id).fadeIn(100, function(){
+				$(this).find(".popup").animate({bottom:'0'}, 200);
+			});
+			$obj.before("<div class='popup_dim'></div>");
+		}
+	}
+
+	function payment(){
+
+		var rcvPrice = $("#rcvPrice").val();
+		var reqCardNo = $("#reqCardNo").val();
+		var cardExpiryYm = $("#cardExpiryYm").val();
+		var sendGbn = $("#sendGbn").val();
+		var tranReqDtVal = $("#tranReqDtVal").val();
+		var taxNum01 = $("#taxNum_01").val();
+		var taxNum02 = $("#taxNum_02").val();
+		var taxNum03 = $("#taxNum_03").val();
+		var taxGbn = $("#taxGbn").val();
+		//var birthday = $("#birthday").val();
+		//var cardPw = $("#cardPw").val();
+
+		if(rcvPrice == "0" || rcvPrice == ""){
+			alert("결제 금액은 필수 입니다.");
+			$("#rcvPrice").focus();
+			return false;
+		}else {
+			var minusPrice = eval($("#minusPrice").val().replaceAll(",",""));
+			if(minusPrice < eval(rcvPrice.replaceAll(",",""))){
+				alert("남은 결제액보다 많은 금액은 결제 할 수 없습니다.");
+				$("#rcvPrice").focus();
+				return false;
+			}else {
+				$("#rcvPrice").val(rcvPrice.replaceAll(",",""));
+			}
+		}
+
+		if(reqCardNo == ""){
+			alert("카드번호는 필수 입니다.");
+			$("#reqCardNo").focus();
+			return false;
+		}
+
+		if(cardExpiryYm == ""){
+			alert("유효기간은 필수 입니다.");
+			$("#cardExpiryYm").focus();
+			return false;
+		}
+
+		//if(birthday == ""){
+		//	alert("생년월일은 필수 입니다.");
+		//	$("#birthday").focus();
+		//	return false;
+		//}
+
+		//if(cardPw == ""){
+		//	alert("카드비밀번호 앞2자리는 필수 입니다.");
+		//	$("#cardPw").focus();
+		//	return false;
+		//}
+
+		if(tranReqDtVal == ''){
+			alert("송금일 은 필수 입니다.");
+			return false;
+		}
+
+		if(!$('#check_01').is(':checked')){
+			alert("모든 항목에 동의하셔야 결제가 가능합니다.");
+			$("#check_01").focus();
+			return false;
+		}
+
+		if(!$('#check_02').is(':checked')){
+			alert("모든 항목에 동의하셔야 결제가 가능합니다.");
+			$("#check_02").focus();
+			return false;
+		}
+
+		if(!$('#check_03').is(':checked')){
+			alert("모든 항목에 동의하셔야 결제가 가능합니다.");
+			$("#check_03").focus();
+			return false;
+		}
+
+		if(!$('#check_04').is(':checked')){
+			alert("모든 항목에 동의하셔야 결제가 가능합니다.");
+			$("#check_04").focus();
+			return false;
+		}
+
+		if(taxGbn != ""){
+			if(taxGbn == "CASH_PHONE"){
+				if(taxNum01 == ""){
+					alert("휴대폰번호는 필수 입니다.");
+					$("#taxNum01").focus();
+					return false;
+				}
+			}else if(taxGbn == "CASH_BIZ"){
+				if(taxNum02 == ""){
+					alert("사업자번호는 필수 입니다.");
+					$("#taxNum02").focus();
+					return false;
+				}
+			}else if(taxGbn == "TAX"){
+				if(taxNum03 == ""){
+					alert("사업자번호는 필수 입니다.");
+					$("#taxNum03").focus();
+					return false;
+				}
+			}
+		}
+
+		var form = $("#ctrtForm")[0];
+		var formData = new FormData(form);
+
+		$("#paymentBtn").attr("disabled", true);
+
+		$.ajax({
+			type: "POST",
+			url: "/ctrt/paymentCtrt",
+			data: formData,
+			async : false,
+			contentType : false,
+			processData : false,
+			success: function(response) {
+				if(response.resultCode == '00' || response.resultCode == '0000' || response.resultCode == ''){
+					openLayerPopup3('popTost1');
+					setTimeout(function(){
+						$("#popTost1").hide(function(){
+							window.location.replace('/?userId='+$("#userId").val()+'&schYear=&schGbn=DESC');
+						});
+					},3000);
+				}else {
+					$("#resultMessage").text(response.resultMessage);
+					openLayerPopup3('popTost2');
+					setTimeout(function(){
+						$("#popTost2").hide(function(){
+							window.location = '/?userId='+$("#userId").val()+'&schYear=&schGbn=DESC';
+						});
+					},3000);
+				}
+			},
+			error: function(error) {
+				alert("결제 실패");
+			}
+		});
+	}
+
+	$(function(){
+		$("#check_all").click(function(){
+			var chk = $(this).is(":checked");//.attr('checked');
+			if(chk) {
+				$("#check_01").prop('checked', true);
+				$("#check_02").prop('checked', true);
+				$("#check_03").prop('checked', true);
+				$("#check_04").prop('checked', true);
+			} else {
+				$("#check_01").prop('checked', false);
+				$("#check_02").prop('checked', false);
+				$("#check_03").prop('checked', false);
+				$("#check_04").prop('checked', false);
+			}
+		});
+	});
+
+	$(function(){
+		$("#check_01").click(function(){
+			var chk = $(this).is(":checked");//.attr('checked');
+			if(!chk) {
+				$("#check_all").prop('checked', false);
+			}
+		});
+	});
+
+	$(function(){
+		$("#check_02").click(function(){
+			var chk = $(this).is(":checked");//.attr('checked');
+			if(!chk) {
+				$("#check_all").prop('checked', false);
+			}
+		});
+	});
+
+	$(function(){
+		$("#check_03").click(function(){
+			var chk = $(this).is(":checked");//.attr('checked');
+			if(!chk) {
+				$("#check_all").prop('checked', false);
+			}
+		});
+	});
+
+	$(function(){
+		$("#check_04").click(function(){
+			var chk = $(this).is(":checked");//.attr('checked');
+			if(!chk) {
+				$("#check_all").prop('checked', false);
+			}
+		});
+	});
+
+	function fnVatPriceChange(obj){
+
+		var price = $(obj).val();
+
+		var fee = 4.4;
+		var payAmt = (eval(price.replaceAll(",","")) * (fee / 100)) + eval(price.replaceAll(",",""));
+        var payRealAmt = Math.floor(payAmt);
+
+		$("#vatPrice").text(numberWithCommas(payRealAmt));
+		$("#vatPrice2").text(numberWithCommas(payRealAmt));
+	}
+
+	function fnLocation(url){
+		JavascriptInterface.callBrowserPopup(url);
+	}
+
+</script>
+
+</html>

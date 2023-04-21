@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:fragment="fragment-header">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <meta charset="utf-8">
+    <meta http-equiv="imagetoolbar" content="no">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+    <!--여기부터 네이버 메타태그-->
+
+    <meta name="title" content="월세카드결제">
+    <meta name="keyword" content="월세카드결제">
+    <meta name="description" content="월세카드결제">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="월세카드결제">
+    <meta property="og:description" content="월세카드결제">
+    <meta property="og:image" content="#">
+    <meta property="og:url" content="">
+
+    <!--여기까지 네이버 메타태그-->
+
+    <title>월세카드결제</title>
+    <link th:rel="stylesheet" th:href="@{/assets/css/swiper.min.css}">
+    <link th:rel="stylesheet" th:href="@{/assets/css/common.css}">
+    <!--<link rel="shortcut icon" th:href="@{/favicon.ico}">-->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <script th:src="@{/assets/js/jquery-1.12.4.min.js}"></script>
+    <script th:src="@{/assets/js/swiper.min.js}"></script>
+    <script th:src="@{/assets/js/common.js}"></script>
+    <script th:src="@{/assets/js/sub.js}"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <script type="text/javascript">
+
+		function addCommas(x){
+		    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",");
+		}
+
+		function callWebviewBack(){
+			JavascriptInterface.jsBack();
+		}
+
+	</script>
+
+</head>
+
+</html>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.enclouds.delmonpay.cmm.code.mapper.CodeMapper">
+
+	<select id="selectCodeList" parameterType="com.enclouds.delmonpay.cmm.code.dto.CodeDto" resultType="com.enclouds.delmonpay.cmm.code.dto.CodeDto">
+		select code_id
+		, code_nm
+		, code_value_01
+		from dcp_cmm_code dcc
+		where 1=1
+		and use_yn = 'Y'
+		and grp_code = #{grpCode}
+	</select>
+
+	<select id="selectDtlCodeInfo" parameterType="com.enclouds.delmonpay.cmm.code.dto.CodeDto" resultType="com.enclouds.delmonpay.cmm.code.dto.CodeDto">
+		SELECT code_value_01
+		, code_nm
+		, code_id
+		from dcp_cmm_code dcc
+		where 1=1
+		and use_yn = 'Y'
+		and grp_code = #{grpCode}
+		and code_id = #{codeId}
+	</select>
+
+	<select id="selectDtlCodeInfoAsVal" parameterType="com.enclouds.delmonpay.cmm.code.dto.CodeDto" resultType="com.enclouds.delmonpay.cmm.code.dto.CodeDto">
+		SELECT code_value_01
+		, code_nm
+		, code_id
+		from dcp_cmm_code dcc
+		where 1=1
+		and use_yn = 'Y'
+		and grp_code = #{grpCode}
+		and code_value_01 = #{codeValue01}
+	</select>
+
+	<select id="selectBankList" resultType="com.enclouds.delmonpay.cmm.code.dto.BankCodeDto">
+		select code_value_01 as bankCd
+		, code_nm as bankNm
+		from dcp_cmm_code
+		where 1=1
+		and grp_code = 9
+	</select>
+
+	<select id="selectBankListLets" resultType="com.enclouds.delmonpay.cmm.code.dto.BankCodeDto">
+		select code_value_01 as bankCd
+		, code_nm as bankNm
+		from dcp_cmm_code
+		where 1=1
+		and grp_code = 12
+	</select>
+
+</mapper>
+
+

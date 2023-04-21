@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.enclouds.delmonpay.user.mapper.UserMapper">
+
+	<select id="selectUserInfo" parameterType="com.enclouds.delmonpay.user.dto.UserDto" resultType="com.enclouds.delmonpay.user.dto.UserDto">
+		SELECT du.agent_code
+		, user_id
+		, password
+		, agent_nm
+		, biz_no
+		, owner_nm
+		, owner_id_num
+		, tel_num
+		, agent_up_code
+		, agent_gbn_cd
+		, owner_address
+		, biz_nm
+		, corp_num
+		, biz_address
+		, biz_cond
+		, biz_kind
+		, const_status_cd
+		, fee
+		, bank_cd
+		, bank_num
+		, bank_owner
+		, date_format(du.reg_date, '%Y-%m-%d') AS reg_date
+		, reg_user_id
+		, upt_date
+		, upt_user_id
+		, store_nm
+		, store_tel
+		, mobile_tel
+		, user_gbn
+		, cmp_gbn
+		, case when daa.agent_code is null then 'N' else 'Y' end agreeYn
+		, wolsae_gbn
+		FROM dcp_users du
+		left join dcp_agent_agree daa on du.agent_code = daa.agent_code
+		WHERE 1=1
+		AND USER_ID = #{userId}
+		AND LOGIN_YN = 'Y'
+	</select>
+
+	<select id="selectUserInfoDupl" parameterType="com.enclouds.delmonpay.user.dto.UserDto" resultType="com.enclouds.delmonpay.user.dto.UserDto">
+		SELECT agent_code
+		, user_id
+		, password
+		, agent_nm
+		, biz_no
+		, owner_nm
+		, owner_id_num
+		, tel_num
+		, agent_up_code
+		, agent_gbn_cd
+		, owner_address
+		, biz_nm
+		, corp_num
+		, biz_address
+		, biz_cond
+		, biz_kind
+		, const_status_cd
+		, fee
+		, bank_cd
+		, bank_num
+		, bank_owner
+		, date_format(reg_date, '%Y-%m-%d') AS reg_date
+		, reg_user_id
+		, upt_date
+		, upt_user_id
+		, store_nm
+		, store_tel
+		, mobile_tel
+		, user_gbn
+		FROM dcp_users
+		WHERE 1=1
+		AND USER_ID = #{userId}
+	</select>
+
+	<select id="selectUserInfoAsAgentCode" parameterType="com.enclouds.delmonpay.user.dto.UserDto" resultType="com.enclouds.delmonpay.user.dto.UserDto">
+		SELECT agent_code
+		, user_id
+		, password
+		, agent_nm
+		, biz_no
+		, owner_nm
+		, owner_id_num
+		, tel_num
+		, agent_up_code
+		, agent_gbn_cd
+		, owner_address
+		, biz_nm
+		, corp_num
+		, biz_address
+		, biz_cond
+		, biz_kind
+		, const_status_cd
+		, fee
+		, bank_cd
+		, bank_num
+		, bank_owner
+		, date_format(reg_date, '%Y-%m-%d') AS reg_date
+		, reg_user_id
+		, upt_date
+		, upt_user_id
+		, store_nm
+		, store_tel
+		, mobile_tel
+		, user_gbn
+		, store_nm
+		FROM dcp_users
+		WHERE 1=1
+		AND agent_code = #{agentCode}
+	</select>
+
+</mapper>
+
+

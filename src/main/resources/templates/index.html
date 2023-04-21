@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<div th:replace="/fragments/header.html :: fragment-header"></div>
+</head>
+<body>
+
+<div id="wrap">
+
+<header id="header" class="header">
+	<div class="inr-c">
+		<button type="button" class="btn-back" id="btn_back"><span>뒤로</span></button>
+		<h1 class="tit">월세 카드결제</h1>
+	</div>
+</header><!--//header -->
+
+<div id="container" class="container main">
+	<form id="ctrtForm" name="ctrtForm" action="/" method="post">
+		<input type="hidden" name="userId" id="userId" th:value="${userInfo.userId}">
+		<input type="hidden" name="schYear" id="schYear" th:value="${ctrtDto.schYear}">
+		<input type="hidden" name="schGbn" id="schGbn" th:value="${ctrtDto.schGbn}">
+	</form>
+	<!-- 상단 카드부분 -->
+	<div class="top_card">
+		<div class="inr-c">
+			<div class="top">
+				<ul>
+					<li><a href="#" th:onclick="fnLocation('https://deliongroup.notion.site/adf3be6227b2465b8f6ce4d12507d4dc');">이용방법</a></li>
+					<li><a href="#" th:onclick="fnLocation('https://deliongroup.notion.site/6d6feb92d7e34ee98da946b27a529aa9');">할부정보</a></li>
+				</ul>
+				<div class="rgh">
+					<a th:href="@{/ctrt/regView(userId = ${userInfo.userId})}" class="btn01"><span>+ 계약 등록</span></a>
+				</div>
+			</div>
+			
+			<div class="box">
+				<div class="mainSwiper" th:if="${#lists.size(ctrtList) == 0}">
+					<div class="swiper-slide">
+						<a th:href="@{/ctrt/regView(userId = ${userInfo.userId})}"><div class="b_card none"><p><span class="i_plus1">여기를 눌러서 계약을 등록해주세요!</span></p></div></a>
+					</div>
+				</div>
+
+				<div class="mainSwiper" th:if="${#lists.size(ctrtList) > 0}">
+					<div class="swiper-wrapper">
+						<div class="swiper-slide" th:each="list:${ctrtList}">
+							<div class="b_card" th:classappend="${list.statusCd} == 136 ? 'ing' : (${list.statusCd} == 137 ? 'possible' : (${list.statusCd} == 138 ? 'ing' : (${list.statusCd} == 139 ? 'ing' : (${list.statusCd} == 140 ? 'end' : ''))))">
+								<div class="tit">
+									<div class="icon"><span class="ico_ i_home" th:classappend="${list.statusCd} == 137 ? 'red' : ''"></span></div>
+									<p class="t1"><span class="fw800" th:classappend="${list.statusCd} == 136 ? 'tx' : (${list.statusCd} == 137 ? 'tx' : (${list.statusCd} == 138 ? 'txholding' : (${list.statusCd} == 139 ? 'txdiscard' : (${list.statusCd} == 140 ? 'tx' : (${list.statusCd} == 999 ? 'txholding' : '')))))" th:text="${list.statusCd} == 136 ? '심사중' : (${list.statusCd} == 137 ? '결제가능' : (${list.statusCd} == 138 ? '보류됨' : (${list.statusCd} == 139 ? '거절됨' : (${list.statusCd} == 140 ? '완료' : (${list.statusCd} == 999 ? '송금진행중' : '')))))"></span><span th:text="${list.ctrtName}"></span></p>
+									<p class="t2"><strong th:text="${#numbers.formatInteger(list.minusPrice, 0, 'COMMA')}"></strong>원</p>
+								</div>
+								<div class="txt">
+									<p th:text="${list.address}"></p>
+									<p th:text="${list.addressDtl}"></p>
+								</div>
+								<div class="tac" th:if="${list.statusCd} == 999">
+									<p>송금이 진행중입니다.</p>
+									<p>송금이 완료되면 알림으로 알려드립니다.</p>
+								</div>
+								<div class="btns" th:if="${list.statusCd} != 999">
+									<th:block th:if="${list.statusCd} != 140"><a th:onclick="fnUpdateView([[${list.seq}]],[[${userInfo.userId}]],[[${list.payCount}]]);" class="btn_edit"><span class="ico_ i_edit">수정</span></a></th:block>
+									<button type="button" class="btn_del" th:onclick="fnDelete([[${list.seq}]],'popAlert2',[[${list.payCount}]],[[${list.statusCd}]]);"><span class="ico_ i_del">삭제</span></button>
+									<button th:if="${list.statusCd} == 137" type="button" class="btn-pk" th:onclick="fnContract([[${list.seq}]],[[${userInfo.userId}]]);"><span>결제 및 이체</span></button>
+									<button th:if="${list.statusCd} == 140" type="button" class="btn-pk" th:onclick="fnReRegisterView([[${list.seq}]],[[${userInfo.userId}]]);"><span>다음달 월세 간편심사요청</span></button>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="swiper-pagination"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 내역 -->
+	<div class="tit_calendar">
+		<div class="inr-c">
+			<div class="tit_yeas">
+				<button type="button" class="btn_yeas" onclick="openLayerPopup('popYears'); return false;"><span th:text="|${ctrtDto.schYear}년|"></span></button>
+				<button type="button" class="btn_prev"><span>이전</span></button>
+				<button type="button" class="btn_next"><span>다음</span></button>
+			</div>
+			<div class="txt_btn">
+				<button type="button" class="btn_tx" th:onclick="fnSearch();"><span class="ico_ i_refresh">총 <span class="c-red" th:text="${ctrtPayList.size}"></span>건</span></button>
+				<div class="rgh">
+					<button type="button" class="btn_tx" onclick="openLayerPopup('popSetting'); return false;"><span class="ico_ i_sort" th:text="${ctrtDto.schGbn} == 'DESC' ? '전체·최신순' : (${ctrtDto.schGbn} == 'PRICE' ? '전체·금액순' : (${ctrtDto.schGbn} == 'ASC' ? '전체·과거순' : ''))"></span></button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="lst_card">
+		<ul>
+			<li th:each="list:${ctrtPayList}">
+				<p class="t_day" th:text="${list.regDate}"></p>
+				<div class="l_card">
+					<a href="javascript:;" th:onclick="prdView(this, [[${list.reqDt}]], [[${list.reqTm}]], [[${list.reqSeq}]], [[${list.wpsSeq}]], [[${list.approvalNo}]], [[${list.ctrtName}]], [[${list.defPrice}]], [[${list.cardtxt}]], [[${list.regDateTime}]], [[${list.rcvPrice}]], [[${list.apprAmt}]], [[${list.minusPriceList}]], [[${list.reqCardNo}]], [[${list.sendGbn}]], [[${list.depositName}]], [[${list.rcvUserNm}]], [[${list.bankNum}]], [[${list.bankNm}]], [[${list.tranReqDt}]], [[${list.approvalNo}]], [[${list.rentSendDate}]], [[${list.cardSellMm}]]);"><!-- 선택시 active-->
+						<p class="t1">
+							<span class="lft fw600 c-black" th:text="${list.ctrtName}"></span>
+							<span class="rgh fw800 c-red" th:text="|${#numbers.formatInteger(list.apprAmt, 0, 'COMMA')}원|"></span>
+						</p>
+						<p class="t2">
+							<span class="lft"><span style="font-weight: bold;" th:attr="class=${list.cancelYn} == 'Y' ? 'c-red' : (${list.sendGbn} == 'RESERVATION' ? 'c-grey' : (${list.sendGbn} == 'FAIL' ? 'c-red' : (${list.sendGbn} == 'NORMAL' ? 'c-grey' : 'c-green')))" th:text="${list.cancelYn} == 'Y' ? '카드취소' : (${list.sendGbn} == 'RESERVATION' ? '송금예정' : (${list.sendGbn} == 'FAIL' ? '송금실패' : (${list.sendGbn} == 'NORMAL' ? '송금예정' : '송금완료')))"></span> <span th:text="${list.tranReqDt}"></span> <span class="ml10" th:text="|${list.bankNm}(${list.rcvUserNm})|"></span></span>
+							<span class="rgh" th:classappend="${list.minusPriceList} == 0 ? '' : 'c-red'" th:text="${list.cancelYn} == 'Y' ? '취소' : (${list.minusPriceList} == 0 ? '총 금액 결제완료' : |남은금액 ${#numbers.formatInteger(list.minusPriceList, 0, 'COMMA')}원|)"></span>
+						</p>
+					</a>
+				</div>
+			</li>
+		</ul>
+	</div>
+</div><!--//container -->
+
+<!-- 팝업 : 이용방법 -->
+<div id="HowToUse" class="layerPopup ty1 pop_addr">
+	<div class="popup">
+		<div class="p_head">
+			<h2 class="tit">이용방법</h2>
+			<button type="button" class="b-close btn_p_close"><span>닫기</span></button>
+		</div>
+
+		<div class="p_cont">
+			<!-- 이용방법 -->
+		</div>
+	</div>
+</div>
+
+
+<!-- 팝업 : 할부정보 -->
+<div id="SeperatePayment" class="layerPopup ty1 pop_addr">
+	<div class="popup">
+		<div class="p_head">
+			<h2 class="tit">할부정보</h2>
+			<button type="button" class="b-close btn_p_close"><span>닫기</span></button>
+		</div>
+
+		<div class="p_cont">
+			<!-- 할부정보 -->
+		</div>
+	</div>
+</div>
+
+<!-- 팝업 : 상세내역 -->
+<div id="popView" class="layerPopup ty1 pop_view">
+	<div class="popup">
+		<div class="p_head">
+			<h2 class="tit">결제 상세내역</h2>
+			<button type="button" class="b-close btn_p_close"><span>닫기</span></button>
+		</div>
+
+		<div class="p_cont">
+			<h2 class="tit1" id="ctrtName"></h2>
+
+			<div class="card_ptop">
+				<div class="lft">
+					<p class="t1"><strong class="c-red" id="orderReqAmt"></strong><!-- <strong class="c-black">51,000원</strong> --></p>
+					<p id="cardtxt"></p>
+				</div>
+				<div class="rgh">
+					<p>결제 완료</p><!-- <p class="c-red">취소됨</p> -->
+					<p id="regDateTime"></p>
+				</div>
+			</div>
+			<div class="card_plist">
+				<ul>
+					<li>
+						<p><span>결제일시</span><span id="regDateTime2"></span></p>
+						<p><span>결제방법</span><span id="cardSellMm"></span></p>
+						<p><span>승인번호</span><span id="approvalNo"></span></p>
+						<p><span>전체금액</span><span id="rcvPrice"></span></p>
+						<p><span>결제금액</span><span id="orderReqAmt2"></span></p>
+						<p><span>입금액(입금예정액)</span><span id="defPrice"></span></p>
+						<p><span>남은금액</span><span id="minusPriceList"></span></p>
+						<p><span>카드사</span><span id="cardtxt2"></span></p>
+						<p><span>카드번호</span><span id="reqCardNo"></span></p>
+						<!--<p><span>카드종류</span><span>신용</span></p>-->
+					</li>
+					<li>
+						<p><span>송금방식</span><span id="sendGbnNm"></span></p>
+						<p><span>송금자명</span><span id="depositName"></span></p>
+						<p><span>수취인명</span><span id="rcvUserNm"></span></p>
+						<p><span>수취인계좌번호</span><span id="bankNum"></span></p>
+						<p><span>수취인은행명</span><span id="bankNm"></span></p>
+						<p><span>송금예정일</span><span id="tranReqDt"></span></p>
+						<p><span>송금일</span><span id="rentSendDate"></span></p>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<!--<div class="p_botm" th:if="${ctrtDto.wolsaeGbn} == 'W'">
+			<button type="button" class="btn-pk bdrs" th:onclick="cancel();"><span>결제 취소하기</span></button>
+		</div>-->
+
+	</div>
+</div>
+
+<!-- 팝업 : 결제취소 -->
+<div id="popAlert1" class="layerPopup2 pop_alert">
+	<div class="popup">
+		<div class="p_cont">
+			<p class="t1"><span class="c-red">결제취소</span> 하시겠습니까?</p>
+		</div>
+
+		<div class="p_botm">
+			<button type="button" class="btn-pk gray b-close3"><span>예</span></button>
+			<button type="button" class="btn-pk red b-close4"><span>아니오</span></button>
+		</div>
+	</div>
+</div>
+
+
+<!-- 팝업 : 삭제 20220907-->
+<div id="popAlert2" class="layerPopup2 pop_alert">
+	<div class="popup">
+		<div class="p_cont">
+			<p class="t1"><span class="c-red">계약을 삭제 </span>하시겠습니까?</p>
+		</div>
+
+		<div class="p_botm">
+			<button type="button" class="btn-pk gray b-close2"><span>아니오</span></button>
+			<button type="button" class="btn-pk red b-close1"><span>예</span></button>
+		</div>
+	</div>
+</div>
+
+
+<!-- 팝업 : 수정금지 20220907 -->
+<div id="popAlert3" class="layerPopup2 pop_alert">
+	<div class="popup">
+		<div class="p_cont pt5">
+			<p class="t1 ta-l"><span class="ico_ i_none">결제가 이미 진행된 계약입니다.</span></p>
+			<p class="t2">결제가 진행된 계약은 수정할 수 없습니다. <br>새로운 계약을 등록해주세요.</p>
+		</div>
+
+		<div class="p_botm">
+			<button type="button" class="btn-pk red b-close2"><span>확인</span></button>
+		</div>
+	</div>
+</div>
+
+<!-- 팝업 : 연도선택 -->
+<div id="popYears" class="layerPopup ty2 pop_years">
+	<div class="popup">
+		<div class="p_head">
+			<h2 class="tit">연도 선택</h2>
+			<button type="button" class="b-close btn_p_close"><span>닫기</span></button>
+		</div>
+
+		<div class="p_cont">
+			<div class="lst_swiper">
+				<div class="lst_line swiper-wrapper">
+					<div class="swiper-slide" th:classappend="${ctrtDto.schYear} == '2020' ? 'current' : ''"><a href="javascript:fnSearchYear('2020');">2020</a></div>
+					<div class="swiper-slide" th:classappend="${ctrtDto.schYear} == '2021' ? 'current' : ''"><a href="javascript:fnSearchYear('2021');">2021</a></div>
+					<div class="swiper-slide" th:classappend="${ctrtDto.schYear} == '2022' ? 'current' : ''"><a href="javascript:fnSearchYear('2022');">2022</a></div>
+					<div class="swiper-slide" th:classappend="${ctrtDto.schYear} == '2023' ? 'current' : ''"><a href="javascript:fnSearchYear('2023');">2023</a></div>
+					<div class="swiper-slide" th:classappend="${ctrtDto.schYear} == '2024' ? 'current' : ''"><a href="javascript:fnSearchYear('2024');">2024</a></div>
+					<div class="swiper-slide" th:classappend="${ctrtDto.schYear} == '2025' ? 'current' : ''"><a href="javascript:fnSearchYear('2025');">2025</a></div>
+					<div class="swiper-slide" th:classappend="${ctrtDto.schYear} == '2026' ? 'current' : ''"><a href="javascript:fnSearchYear('2026');">2026</a></div>
+					<div class="swiper-slide" th:classappend="${ctrtDto.schYear} == '2027' ? 'current' : ''"><a href="javascript:fnSearchYear('2027');">2027</a></div>
+					<div class="swiper-slide" th:classappend="${ctrtDto.schYear} == '2028' ? 'current' : ''"><a href="javascript:fnSearchYear('2028');">2028</a></div>
+				</div>
+			</div>
+		</div>
+		<!--<div class="p_botm">
+			<button type="button" class="btn-pk red" onclick="fnSearch();"><span>검색</span></button>
+		</div>-->
+	</div>
+</div>
+
+<!-- 팝업 : 조회설정 -->
+<div id="popSetting" class="layerPopup ty2 pop_setting">
+	<div class="popup">
+		<div class="p_head">
+			<h2 class="tit">조회 설정</h2>
+			<button type="button" class="b-close btn_p_close"><span>닫기</span></button>
+		</div>
+
+		<div class="p_cont">
+			<p class="t1 pt10">거래내역</p>
+			<div class="lst_radiotx">
+				<label class="inp_radiotx"><input type="radio" name="radio01" th:checked="${ctrtDto.schGbn} == 'DESC'" onclick="fnOrderSearch('DESC');"><span>최신순</span></label>
+				<label class="inp_radiotx"><input type="radio" name="radio01" th:checked="${ctrtDto.schGbn} == 'PRICE'" onclick="fnOrderSearch('PRICE');"><span>금액순</span></label>
+				<label class="inp_radiotx"><input type="radio" name="radio01" th:checked="${ctrtDto.schGbn} == 'ASC'" onclick="fnOrderSearch('ASC');"><span>과거순</span></label>
+			</div>
+		</div>
+	</div>
+</div>
+
+</div><!--  //wrap -->
+</body>
+
+<script>
+	var reqDtTmp = "";
+	var reqTmTmp = "";
+	var reqSeqTmp = "";
+	var wpsSeqTmp = "";
+	var approvalNoTmp = "";
+
+	$("#btn_back").on("click", function(){
+      	JavascriptInterface.jsBack();
+   	});
+
+   	function callWebviewBack(){
+    	JavascriptInterface.jsBack();
+    }
+
+	var swiper = new Swiper(".mainSwiper", {
+		slidesPerView: 1,
+		spaceBetween: 16,
+		centeredSlides: true,
+		pagination: {
+		  el: ".mainSwiper .swiper-pagination",
+		},
+	});
+
+	//연도선택
+	var swiper2 = new Swiper(".lst_swiper", {
+		direction: "vertical",
+		centeredSlides: true,
+		slidesPerView: 3,
+		observer: true,
+		observeParents: true,
+	});
+	swiper2.slideTo($(".lst_line .current").index(), 1000, false);
+
+	function fnDelete(seq, id, payCount, status){
+		if(payCount > 0){
+			if(status == '140'){
+				var $obj = $("#" +id);
+
+				$obj.fadeIn(100,function(){
+					$(this).find(".popup").animate({top:'50%'}, 200);
+					$("body").addClass("popfix");
+				});
+
+				$obj.before("<div class='popup_dim2'></div>");
+
+				$(".b-close2, .popup_dim2").on("click", function(){
+					$obj.hide();
+					$obj.find(".popup").css("top","0");
+					if (!$(".layerPopup").is(":visible")){
+						$("body").removeClass("popfix");
+					}
+					$(".popup_dim2").remove();
+				});
+
+				$(".b-close1, .popup_dim2").on("click", function(){
+					var form = $("#ctrtForm")[0];
+					var formData = new FormData(form);
+					formData.append("seq", seq);
+
+					$.ajax({
+						type: "POST",
+						url: "/ctrt/deleteCtrt",
+						data: formData,
+						contentType : false,
+						processData : false,
+						success: function(response) {
+							if(response.resultCode > 0){
+								window.location = "/?userId="+$("#userId").val()+"&schYear="+$("#schYear").val()+"&schGbn=DESC";
+							}else {
+								alert("계약삭제 실패");
+							}
+						},
+						error: function(error) {
+							alert("계약삭제 실패");
+						}
+					});
+				});
+			}else {
+				openLayerPopup2("popAlert3");
+			}
+		} else {
+			var $obj = $("#" +id);
+
+			$obj.fadeIn(100,function(){
+				$(this).find(".popup").animate({top:'50%'}, 200);
+				$("body").addClass("popfix");
+			});
+
+			$obj.before("<div class='popup_dim2'></div>");
+
+			$(".b-close2, .popup_dim2").on("click", function(){
+				$obj.hide();
+				$obj.find(".popup").css("top","0");
+				if (!$(".layerPopup").is(":visible")){
+					$("body").removeClass("popfix");
+				}
+				$(".popup_dim2").remove();
+			});
+
+			$(".b-close1, .popup_dim2").on("click", function(){
+				var form = $("#ctrtForm")[0];
+				var formData = new FormData(form);
+				formData.append("seq", seq);
+
+				$.ajax({
+					type: "POST",
+					url: "/ctrt/deleteCtrt",
+					data: formData,
+					contentType : false,
+					processData : false,
+					success: function(response) {
+						if(response.resultCode > 0){
+							window.location = "/?userId="+$("#userId").val()+"&schYear="+$("#schYear").val()+"&schGbn=DESC";
+						}else {
+							alert("계약삭제 실패");
+						}
+					},
+					error: function(error) {
+						alert("계약삭제 실패");
+					}
+				});
+			});
+		}
+	}
+
+	function fnContract(seq, userId){
+		window.location = "/ctrt/contractView?seq="+seq+"&userId="+userId;
+	}
+
+	function fnReRegisterView(seq, userId){
+		window.location = "/ctrt/reRegisterView?seq="+seq+"&userId="+userId;
+	}
+
+	function fnUpdateView(seq, userId, payCount){
+		if(payCount > 0){
+			openLayerPopup2("popAlert3");
+		} else {
+			window.location = "/ctrt/uptView?seq="+seq+"&userId="+userId;
+		}
+	}
+
+	function fnSearch(){
+		$("#ctrtForm").submit();
+	}
+
+	function fnSearchYear(year){
+		$("#schYear").val(year);
+		fnSearch();
+	}
+
+	function fnOrderSearch(order){
+		$("#schGbn").val(order);
+		fnSearch();
+	}
+
+	function prdView(e, reqDt, reqTm, reqSeq, wpsSeq, approvalNo, ctrtName, defPrice, cardtxt, regDateTime, rcvPrice, orderReqAmt, minusPriceList, reqCardNo, sendGbn, depositName, rcvUserNm, bankNum, bankNm, tranReqDt, approvalNo, rentSendDate, cardSellMm){
+		var obj = $(e);
+
+		$(".l_card").removeClass("active");
+		obj.parents(".l_card").addClass("active");
+
+		$("#ctrtName").text(ctrtName);
+		$("#orderReqAmt").text(numberWithCommas(orderReqAmt) + "원");
+
+		var cardSellMmNm = "";
+		if(cardSellMm == '00'){
+			cardSellMmNm = "카드 일시불";
+		}else {
+			cardSellMmNm = "카드 할부(" + cardSellMm + "개월)" ;
+		}
+		$("#cardSellMm").text(cardSellMmNm);
+
+		$("#cardtxt").text(cardtxt);
+		$("#regDateTime").text(regDateTime);
+		$("#regDateTime2").text(regDateTime);
+		$("#rcvPrice").text(numberWithCommas(rcvPrice) + "원");
+		$("#orderReqAmt2").text(numberWithCommas(orderReqAmt) + "원");
+		$("#defPrice").text(numberWithCommas(defPrice) + "원");
+		$("#minusPriceList").text(numberWithCommas(minusPriceList) + "원");
+		$("#cardtxt2").text(cardtxt);
+		$("#reqCardNo").text(reqCardNo);
+		$("#tranReqDt").text(tranReqDt);
+		$("#approvalNo").text(approvalNo);
+
+		if(rentSendDate != ''){
+			$("#rentSendDate").text(rentSendDate);
+		}else {
+			$("#rentSendDate").text('송금예정');
+		}
+
+		var sendGbnNm = "";
+		if(sendGbn == "NOW"){
+			sendGbnNm = "즉시송금";
+		}else if(sendGbn == "NORMAL"){
+			sendGbnNm = "일반송금";
+		}else if(sendGbn == "RESERVATION"){
+			sendGbnNm = "예약송금";
+		}
+
+		$("#sendGbnNm").text(sendGbnNm);
+		$("#depositName").text(depositName);
+		$("#rcvUserNm").text(rcvUserNm);
+		$("#bankNum").text(bankNum);
+		$("#bankNm").text(bankNm);
+
+		reqDtTmp = reqDt;
+		reqTmTmp = reqTm;
+		reqSeqTmp = reqSeq;
+		wpsSeqTmp = wpsSeq;
+		approvalNoTmp = approvalNo;
+
+		openLayerPopup('popView');
+		return false;
+	}
+
+	function cancel(){
+		var form = $("#ctrtForm")[0];
+		var formData = new FormData(form);
+		formData.append("mid", "wel000556m");
+		formData.append("reqDt", reqDtTmp);
+		formData.append("reqTm", reqTmTmp);
+		formData.append("reqSeq", reqSeqTmp);
+		formData.append("wpsSeq", wpsSeqTmp);
+		formData.append("approvalNo", approvalNoTmp);
+		formData.append("dealCd", "DC07");
+
+		$.ajax({
+			type: "POST",
+			url: "/ctrt/api/rentCancelCheck",
+			data: formData,
+			contentType : false,
+			processData : false,
+			success: function(response) {
+				if(response.resultCode == '0000'){
+					var $obj = $("#popAlert1");
+
+					$obj.fadeIn(100,function(){
+						$(this).find(".popup").animate({top:'50%'}, 200);
+						$("body").addClass("popfix");
+					});
+
+					$obj.before("<div class='popup_dim2'></div>");
+
+					$(".b-close4, .popup_dim2").on("click", function(){
+						$obj.hide();
+						$obj.find(".popup").css("top","0");
+						if (!$(".layerPopup").is(":visible")){
+							$("body").removeClass("popfix");
+						}
+						$(".popup_dim2").remove();
+					});
+
+					$(".b-close3, .popup_dim2").on("click", function(){
+							$.ajax({
+								type: "POST",
+								url: "/ctrt/api/rentCancelRequest",
+								data: formData,
+								contentType : false,
+								processData : false,
+								success: function(response) {
+									if(response.resultCode == "0000"){
+										window.location = "/?userId="+$("#userId").val()+"&schYear="+$("#schYear").val()+"&schGbn=DESC";
+									}else {
+										alert(response.resultCode + " : " + response.resultMessage);
+										window.location = "/?userId="+$("#userId").val()+"&schYear="+$("#schYear").val()+"&schGbn=DESC";
+									}
+								},
+								error: function(error) {
+								alert("취소처리 실패");
+							}
+						});
+					});
+				}else {
+					alert(response.resultCode + ' : '+ response.resultMessage);
+				}
+			},
+			error: function(error) {
+				alert("취소 조회 실패");
+			}
+		});
+	}
+
+	function fnLocation(url){
+		JavascriptInterface.callBrowserPopup(url);
+	}
+
+</script>
+
+</html>

@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+	<div th:replace="/fragments/header.html :: fragment-header"></div>
+</head>
+
+<body>
+
+	<form id="ctrtForm" name="ctrtForm" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="bankCd" id="bankCd" value="">
+		<input type="hidden" name="bankChkYn" id="bankChkYn" value="N">
+		<input type="hidden" name="agentCode" id="agentCode" th:value="${userDto.agentCode}">
+		<input type="hidden" name="userId" id="userId" th:value="${userDto.userId}">
+		<input type="hidden" name="referer" id="referer" th:value="${referer}">
+
+		<div id="wrap">
+			<header id="header" class="header">
+				<div class="inr-c">
+					<a th:href="@{/(userId = ${userDto.userId}, schYear = ${searchYear}, schGbn = 'DESC')}">
+					<button type="button" class="btn-back"><span>뒤로</span></button>
+					</a>
+					<h1 class="tit">계약 등록</h1>
+				</div>
+			</header><!--//header -->
+
+			<div id="container" class="container sub">
+
+				<div class="inr-c">
+					<section class="area_inp pr-mb1">
+						<h2 class="h_tit1">계약 정보</h2>
+
+						<label for="ctrtName" class="h1">계약명 <span class="c-red">*</span></label>
+						<div class="box mb15">
+							<input type="text" id="ctrtName" name="ctrtName" class="inp_txt w100p" placeholder="예)부평동사무실 월세, 렉시온오피스텔 월세">
+							<button type="button" class="a_link" onclick="openLayerPopup('popContract'); return false;">선택</button>
+						</div>
+
+						<label for="address" class="h1">내 주소 <span class="c-red">*</span></label>
+						<div class="box mb5">
+							<input type="text" id="address" name="address" class="inp_txt w100p" placeholder="주소를 입력하세요." readonly>
+							<button type="button" class="btn-pk" th:onclick="javascript:fnAddrPopup();"><span>주소검색</span></button>
+						</div>
+						<div class="box mb15">
+							<input type="text" id="addressDtl" name="addressDtl" class="inp_txt w100p" placeholder="상세주소를 입력하세요.">
+						</div>
+					</section>
+
+					<div class="mt40"></div>
+
+					<section class="area_inp pr-mb1">
+						<h2 class="h_tit1">입금 정보</h2>
+
+						<label for="depositName" class="h1">입금자명 <span class="c-red">*</span></label>
+						<div class="box mb15">
+							<input type="text" id="depositName" name="depositName" class="inp_txt w100p" placeholder="임대인 계좌에 표시될 입금자명을 입력하세요.">
+						</div>
+
+						<label for="rcvPrice" class="h1">입금액 <span class="c-red">*</span></label>
+						<div class="box mb15">
+							<input type="number" id="rcvPrice" pattern="\d*" name="rcvPrice" class="inp_txt w100p" placeholder="입금액을 입력해주세요">
+						</div>
+
+						<label for="bankNm" class="h1">임대인 계좌정보 <span class="c-red">*</span></label>
+						<div class="box mb10">
+							<input type="text" id="rcvUserNm" name="rcvUserNm" class="inp_txt w100p" placeholder="예금주명">
+						</div>
+						<div class="box mb10">
+							<input type="text" id="bankNm" name-="bankNm" class="inp_txt w100p" placeholder="은행명" readonly>
+							<button type="button" class="btn-pk" onclick="openLayerPopup('popBank'); return false;"><span>은행선택</span></button>
+						</div>
+
+						<div class="box mb10">
+							<input type="number" id="bankNum" pattern="\d*" name="bankNum" class="inp_txt w100p" placeholder="계좌번호">
+							<button type="button" class="btn-pk" onclick="javascript:fnGetBankChk()"><span>계좌조회</span></button>
+						</div>
+
+						<p class="t_dot">[농협] 입금은행 선택시 농협중앙회 계좌는  NH농협은행, 단위농협 계좌는 지역농축협을 선택해주세요. 다르게 선택하실 경우 진행이 불가합니다.</p>
+
+					</section>
+
+					<div class="mt40"></div>
+
+					<section class="area_inp">
+						<h2 class="h_tit1">서류 정보</h2>
+
+						<p for="input5" class="h1">임대차 계약서 <span class="c-red">*</span></p>
+						<div class="box mb15">
+							<input type="file" id="file01" name="file01" accept="image/*" class="upload-hidden">
+							<input type="text" id="file_01_1" class="inp_txt w100p" placeholder="사진을 업로드해주세요." readonly>
+							<button type="button" class="btn_file_del"><span>삭제</span></button>
+							<label for="file01" class="btn-pk pl0"><span>업로드</span></label>
+						</div>
+
+						<p for="input6" class="h1">추가 서류</p>
+						<div class="box mb15">
+							<input type="file" id="file02" name="file02" accept="image/*" class="upload-hidden">
+							<input type="text" id="file_02_1" class="inp_txt w100p" placeholder="사진을 업로드해주세요." readonly>
+							<button type="button" class="btn_file_del"><span>삭제</span></button>
+							<label for="file02" class="btn-pk pl0"><span>업로드</span></label>
+						</div>
+
+						<p for="input7" class="h1">추가 서류 2</p>
+						<div class="box mb15">
+							<input type="file" id="file03" name="file03" accept="image/*" class="upload-hidden">
+							<input type="text" id="file_03_1" class="inp_txt w100p" placeholder="사진을 업로드해주세요." readonly>
+							<button type="button" class="btn_file_del"><span>삭제</span></button>
+							<!--<button type="button" class="btn-pk pr5"><span>보기</span></button>-->
+							<label for="file03" class="btn-pk pl0"><span>업로드</span></label>
+						</div>
+					</section>
+
+					<div class="btn-bot">
+						<button type="button" class="btn_submit" onclick="btnSubmit();" id="submit_btn">심사 제출하기</button>
+					</div>
+				</div>
+			</div><!--//container -->
+
+			<!-- 팝업 : 계약명 선택 -->
+			<div id="popContract" class="layerPopup ty2 pop_contract">
+				<div class="popup">
+					<div class="p_head">
+						<h2 class="tit">계약명 선택</h2>
+						<button type="button" class="b-close btn_p_close"><span>닫기</span></button>
+					</div>
+
+					<div class="p_cont">
+						<div class="lst_radiotx big">
+							<label class="inp_radiotx b-close"><input type="radio" name="radio01" onclick="javascript:fnCtrtNameClick('오피스텔 월세');"><span>오피스텔 월세</span></label>
+							<label class="inp_radiotx b-close"><input type="radio" name="radio01" onclick="javascript:fnCtrtNameClick('빌라 월세');"><span>빌라 월세</span></label>
+							<label class="inp_radiotx b-close"><input type="radio" name="radio01" onclick="javascript:fnCtrtNameClick('아파트 월세');"><span>아파트 월세</span></label>
+							<label class="inp_radiotx b-close"><input type="radio" name="radio01" onclick="javascript:fnCtrtNameClick('상가 월세');"><span>상가 월세</span></label>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 팝업 : 은행선택 -->
+			<div id="popBank" class="layerPopup ty2 pop_bank">
+				<div class="popup">
+					<div class="p_head">
+						<h2 class="tit">은행 선택</h2>
+						<button type="button" class="b-close btn_p_close"><span>닫기</span></button>
+					</div>
+
+					<div class="p_cont pt10 pb10">
+						<div class="lst_swiper ty2">
+							<div class="lst_text swiper-wrapper" id="bankList">
+								<div class="swiper-slide" th:attr="data-el_id=${list.bankCd},data-el_name=${list.bankNm}" th:each="list:${bankList}" ><a href="javascript:;" th:text="${list.bankNm}"></a></div>
+							</div>
+						</div>
+					</div>
+
+					<div class="p_botm">
+						<button type="button" class="btn-pk red" onclick="javascript:fnBankClick()"><span>확인</span></button>
+					</div>
+				</div>
+			</div>
+
+			<!-- 팝업 : 계좌확인 -->
+			<div id="popAlert1" class="layerPopup2 pop_alert">
+				<div class="popup">
+					<div class="p_cont">
+						<p class="t1">해당 계좌는 [<span class="c-red" id="bankRealName"></span>]님의 계좌입니다. 계속 진행하시려면 [예]를 눌러주세요.</p>
+					</div>
+
+					<div class="p_botm">
+						<button type="button" class="btn-pk gray b-close2" onclick="javascript:fnBankConfirm('N');"><span>아니오</span></button>
+						<button type="button" class="btn-pk red b-close2" onclick="javascript:fnBankConfirm('Y');"><span>예</span></button>
+					</div>
+				</div>
+			</div>
+
+			<!-- 팝업 : 토스트메세지 -->
+			<div id="popTost1" class="layerPopup3 pop_tost">
+				<div class="popup">
+					<p><span class="ico2 i_chk1">성공적으로 계약심사가 제출되었습니다.</span></p>
+					<a href="index.html" class="b-close3"><span class="ico_close">닫기</span></a>
+				</div>
+			</div>
+
+		</div>
+	</form>
+</body>
+
+	<script>
+		var swiper0;
+
+		$(function() {
+            $("#submit_btn").attr("disabled", false);
+        });
+
+		//심사제출하기
+		function btnSubmit(){
+			$("#submit_btn").attr("disabled", true);
+
+        	var ctrtName = $("#ctrtName").val();
+        	var address = $("#address").val();
+        	var depositName = $("#depositName").val();
+        	var rcvPrice = $("#rcvPrice").val().replace(/,/g, '');
+        	var rcvUserNm = $("#rcvUserNm").val();
+        	var bankCd = $("#bankCd").val();
+        	var bankNum = $("#bankNum").val();
+        	var file01 = $("#file01").val();
+            var bankChkYn = $("#bankChkYn").val();
+
+			if(ctrtName == ""){
+				alert("계약명은 필수 입니다.");
+				$("#ctrtName").focus();
+				$("#submit_btn").attr("disabled", false);
+				return false;
+			}
+
+			if(address == ""){
+				alert("주소는 필수 입니다.");
+				$("#address").focus();
+				$("#submit_btn").attr("disabled", false);
+				return false;
+			}
+
+			if(depositName == ""){
+				alert("입금자명은 필수 입니다.");
+				$("#depositName").focus();
+				$("#submit_btn").attr("disabled", false);
+				return false;
+			}
+
+			if(rcvPrice == ""){
+				alert("입금액은 필수 입니다.");
+				$("#rcvPrice").focus();
+				$("#submit_btn").attr("disabled", false);
+				return false;
+			}else {
+				$("#rcvPrice").val(rcvPrice);
+			}
+
+			if(rcvUserNm == ""){
+				alert("임대인 예금주명은 필수 입니다.");
+				$("#rcvUserNm").focus();
+				$("#submit_btn").attr("disabled", false);
+				return false;
+			}
+
+			if(bankCd == ""){
+				alert("임대인 은행명은 필수 입니다.");
+				$("#bankNm").focus();
+				$("#submit_btn").attr("disabled", false);
+				return false;
+			}
+
+			if(bankNum == ""){
+				alert("임대인 계좌번호는 필수 입니다.");
+				$("#bankNum").focus();
+				$("#submit_btn").attr("disabled", false);
+				return false;
+			}
+
+			if(bankChkYn == "N"){
+			    alert("계좌확인은 필수 입니다.");
+			    $("#submit_btn").attr("disabled", false);
+			    return false;
+			}
+
+			if(isEmpty(file01)){
+				alert("임대차 계약서는 필수 입니다.");
+				$("#file01").focus();
+				$("#submit_btn").attr("disabled", false);
+				return false;
+			}
+
+			var form = $("#ctrtForm")[0];
+			var formData = new FormData(form);
+
+			$.ajax({
+				type: "POST",
+				url: "/ctrt/insertCtrt",
+				data: formData,
+				async : false,
+				contentType : false,
+				processData : false,
+				success: function(response) {
+
+				    if(response.resultCode > 0){
+				    	openLayerPopup3('popTost1');
+
+				    	setTimeout(function(){
+							$("#popTost1").hide(function(){
+								window.location = '/?userId='+$("#userId").val()+'&schYear=&schGbn=DESC';
+							});
+						},1000);
+
+				    }else {
+				    	alert("계약등록 실패");
+				    }
+				},
+				error: function(error) {
+			  		alert("계약등록 실패");
+				}
+		  	});
+		}
+
+		function fnBankClick(){
+			var bankDiv = $("#bankList > div")[swiper0.realIndex];
+			var bankCd = bankDiv.getAttribute("data-el_id");
+			var bankNm = bankDiv.getAttribute("data-el_name");
+
+			$("#bankCd").val(bankCd);
+			$("#bankNm").val(bankNm);
+
+			$("#popBank").hide();
+			$("body").removeClass("popfix");
+			$(".popup_dim").remove();
+		}
+
+		function fnCtrtNameClick(ctrtName){
+			$("#ctrtName").val(ctrtName);
+		}
+
+		function fnAddrPopup(){
+			new daum.Postcode({
+				oncomplete: function(data) {
+					if (data.userSelectedType === 'R') {
+						addr = data.roadAddress;
+					} else {
+						addr = data.jibunAddress;
+					}
+
+					$("#address").val(addr + ' ' + data.buildingName);
+					$("#addressDtl").focus();
+				}
+			}).open();
+		}
+
+		function fnGetBankChk(){
+			var rcvUserNm = $("#rcvUserNm").val();
+			var bankCd = $("#bankCd").val();
+			var bankNum = $("#bankNum").val();
+
+			if(rcvUserNm == ""){
+				alert("예금주 명을 입력 하여 주십시오.");
+				return false;
+			}
+
+			if(bankCd == ""){
+				alert("은행을 선택 하여 주십시오.");
+				return false;
+			}
+
+			if(bankNum == ""){
+				alert("계좌번호를 입력 하여 주십시오.");
+				return false;
+			}
+
+			var params = {
+				bankNum : $("#bankNum").val(),
+				bankCd : $("#bankCd").val(),
+				rcvUserNm : $("#rcvUserNm").val()
+			}
+
+			$("#div_load_image").show();
+
+			$.ajax({
+				type: "GET",
+				url: "/paymo/bankNumChk",
+				data: params,
+				dataType : "json",
+				success: function(response) {
+					if(response.realBankOwnerName == ''){
+						alert("계좌주 정보가 없습니다.");
+					}else {
+						$("#bankRealName").text(response.realBankOwnerName);
+						openLayerPopup2('popAlert1');
+					}
+
+					$("#div_load_image").hide();
+				},
+				error: function(error) {
+					alert("계좌주 정보 조회 실패");
+					$("#div_load_image").hide();
+				}
+			});
+		}
+
+		function fnBankConfirm(val){
+			$("#rcvUserNm").val($("#bankRealName").text());
+			$("#bankChkYn").val(val);
+		}
+
+		function checkFileSize(obj, size) {
+			var check = false;
+			var sizeinbytes = obj[0].files[0].size;
+			var fSExt = new Array('Bytes', 'KB', 'MB', 'GB');
+			var i = 0;
+			var checkSize = size;
+
+			while (checkSize > 900) {
+				checkSize /= 1024;
+				i++;
+			}
+
+			checkSize = (Math.round(checkSize * 100) / 100) + ' ' + fSExt[i];
+			var fSize = sizeinbytes;
+
+			if (fSize > size) {
+				alert("첨부파일은 " + checkSize + " 이하로 첨부 바랍니다.");
+				check = false;
+			} else {
+				check = true;
+			}
+
+			return check;
+		}
+
+	</script>
+</html>

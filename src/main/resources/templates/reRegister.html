@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+	<div th:replace="/fragments/header.html :: fragment-header"></div>
+</head>
+
+<body>
+	<form id="ctrtForm" name="ctrtForm" method="post" action="/ctrt/insertReCtrt">
+		<input type="hidden" name="bankCd" th:value="${ctrtInfo.bankCd}">
+		<input type="hidden" name="agentCode" id="agentCode" th:value="${userDto.agentCode}">
+		<input type="hidden" name="userId" id="userId" th:value="${userDto.userId}">
+		<input type="hidden" name="seq" id="seq" th:value="${ctrtInfo.seq}">
+		<input type="hidden" name="referer" id="referer" th:value="${referer}">
+
+		<div id="wrap">
+			<header id="header" class="header">
+				<div class="inr-c">
+					<a href="#a">
+					<button type="button" class="btn-back" id="btn_back"><span>뒤로</span></button>
+					</a>
+					<h1 class="tit">재심사 요청</h1>
+				</div>
+			</header><!--//header -->
+
+			<div id="container" class="container sub">
+				<div class="inr-c">
+					<div class="box_recontract">
+						<div class="flex aic">
+							<div class="ico_ i_watchout"></div>
+							<div class="ml15">
+								<div class="mb5"><span class="c-black fw800">재심사 요청</span><span class="">시 내용을 수정할 수 없습니다.</span></div>
+								<p><span class="">수정 내용이 있다면, <a th:href="@{/ctrt/regView(userId = ${userDto.userId})}"><span class="c-red fw600 tdul">새로 계약등록</span></a></span>을 해주세요!</p>
+							</div>
+						</div>
+					</div>
+					<div class="mt20"></div>
+					<section class="area_inp pr-mb1">
+						<h2 class="h_tit1">계약 정보</h2>
+
+						<label for="ctrtName" class="h1">계약명</label>
+						<div class="box mb15">
+							<input type="text" id="ctrtName" name="ctrtName" class="inp_txt w100p" th:value="${ctrtInfo.ctrtName}" readonly>
+							<!--<button type="button" class="a_link" onclick="openLayerPopup('popContract'); return false;">선택</button>-->
+						</div>
+
+						<label for="address" class="h1">내 주소</label>
+						<div class="box mb5">
+							<input type="text" id="address" name="address" class="inp_txt w100p" th:value="${ctrtInfo.address}" readonly>
+						</div>
+						<div class="box mb15">
+							<input type="text" id="addressDtl" name="addressDtl" class="inp_txt w100p" th:value="${ctrtInfo.addressDtl}" readonly>
+						</div>
+					</section>
+
+					<div class="mt40"></div>
+
+					<section class="area_inp pr-mb1">
+						<h2 class="h_tit1">입금 정보</h2>
+
+						<label for="depositName" class="h1">입금자명</label>
+						<div class="box mb15">
+							<input type="text" id="depositName" name="depositName" class="inp_txt w100p" th:value="${ctrtInfo.depositName}" readonly>
+						</div>
+
+						<label for="rcvPrice" class="h1">입금액</label>
+						<div class="box mb15">
+							<input type="text" id="rcvPrice" class="inp_txt w100p" th:value="${#numbers.formatInteger(ctrtInfo.rcvPrice, 0, 'COMMA')}" readonly>
+						</div>
+
+						<label for="bankNm" class="h1">임대인 계좌정보</label>
+						<div class="box mb10">
+							<input type="text" id="rcvUserNm" name="rcvUserNm" class="inp_txt w100p" th:value="${ctrtInfo.rcvUserNm}" readonly>
+						</div>
+						<div class="box mb10">
+							<input type="text" id="bankNm" name-="bankNm" class="inp_txt w100p" th:value="${ctrtInfo.bankNm}" readonly>
+							<!--<button type="button" class="btn-pk" onclick="openLayerPopup('popBank'); return false;"><span>은행선택</span></button>-->
+						</div>
+
+						<div class="box mb10">
+							<input type="number" id="bankNum" pattern="\d*" name="bankNum" class="inp_txt w100p" th:value="${ctrtInfo.bankNum}" readonly>
+							<!--<button type="button" class="btn-pk" onclick="javascript:fnGetBankChk()"><span>계좌조회</span></button>-->
+						</div>
+
+						<p class="t_dot">[농협] 입금은행 선택시 농협중앙회 계좌는  NH농협은행, 단위농협 계좌는 지역농축협을 선택해주세요. 다르게 선택하실 경우 진행이 불가합니다.</p>
+
+					</section>
+
+					<div class="mt40"></div>
+
+					<section class="area_inp">
+						<h2 class="h_tit1">서류 정보</h2>
+
+						<p for="input5" class="h1">임대차 계약서</p>
+						<div class="box mb15">
+							<input type="text" id="file01Name" class="inp_txt w100p" th:value="${ctrtInfo.file01Name}" readonly>
+							<button th:if="${ctrtInfo.file01Yn != 'N'}" type="button" class="btn-pk pr5" th:onclick="javascript:popupImage([[${ctrtInfo.img01}]]);"><span>보기</span></button>
+						</div>
+
+						<p for="input6" class="h1">추가 서류</p>
+						<div class="box mb15">
+							<input type="text" id="file02Name" class="inp_txt w100p" th:value="${ctrtInfo.file02Name}" readonly>
+							<button th:if="${ctrtInfo.file02Yn != 'N'}" type="button" class="btn-pk pr5" th:onclick="javascript:popupImage([[${ctrtInfo.img02}]]);"><span>보기</span></button>
+						</div>
+
+						<p for="input7" class="h1">추가 서류 2</p>
+						<div class="box mb15">
+							<input type="text" id="file03Name" class="inp_txt w100p" th:value="${ctrtInfo.file03Name}" readonly>
+							<button th:if="${ctrtInfo.file03Yn != 'N'}" type="button" class="btn-pk pr5" th:onclick="javascript:popupImage([[${ctrtInfo.img03}]]);"><span>보기</span></button>
+						</div>
+					</section>
+
+					<div class="btn-bot">
+						<button type="button" class="btn_submit" onclick="btnSubmit();">심사 요청하기</button>
+					</div>
+				</div>
+			</div><!--//container -->
+
+			<!-- 팝업 : 토스트메세지 -->
+			<div id="popTost1" class="layerPopup3 pop_tost">
+				<div class="popup">
+					<p><span class="ico2 i_chk1">성공적으로 계약심사가 제출되었습니다.</span></p>
+					<a href="index.html" class="b-close3"><span class="ico_close">닫기</span></a>
+				</div>
+			</div>
+
+		</div>
+	</form>
+</body>
+
+	<script>
+		var swiper0;
+
+		$(document).ready( function() {
+			$("#btn_back").click(function(){
+				window.location = '/?userId='+$("#userId").val()+'&schYear=&schGbn=DESC';
+			});
+		});
+
+		//심사제출하기
+		function btnSubmit(){
+			$("#ctrtForm").submit();
+		}
+
+		function popupImage(byteImg){
+			var innerhtml_source="<html><head><title>미리보기</title><body topmargin=0 leftmargin=0>";
+			innerhtml_source += "<img src='data:image/png;base64,"+byteImg+"'>";
+   			open_preview=window.open('','preview','width=800,height=800');
+			open_preview.document.write(innerhtml_source);
+		}
+
+	</script>
+</html>
