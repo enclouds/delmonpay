@@ -139,6 +139,13 @@
 
 		//심사제출하기
 		function btnSubmit(){
+			$('body').waitMe({
+				effect: 'timer',
+				text: '심사 요청중입니다. 잠시만 기다려주십시오.',
+				bg: 'rgba(0,0,0,0.5)',
+				color: '#ffffff',
+				textPos: 'vertical',
+			});
 			$("#ctrtForm").submit();
 		}
 

@@ -9,7 +9,7 @@
 
 	<form id="ctrtForm" name="ctrtForm" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="bankCd" id="bankCd" value="">
-		<input type="hidden" name="bankChkYn" id="bankChkYn" value="N">
+		<input type="hidden" name="bankChkYn" id="bankChkYn" value="Y">
 		<input type="hidden" name="agentCode" id="agentCode" th:value="${userDto.agentCode}">
 		<input type="hidden" name="userId" id="userId" th:value="${userDto.userId}">
 		<input type="hidden" name="referer" id="referer" th:value="${referer}">
@@ -271,6 +271,14 @@
 			var form = $("#ctrtForm")[0];
 			var formData = new FormData(form);
 
+			$('body').waitMe({
+				effect: 'timer',
+				text: '심사 요청중입니다. 잠시만 기다려주십시오.',
+				bg: 'rgba(0,0,0,0.5)',
+				color: '#ffffff',
+				textPos: 'vertical',
+			});
+
 			$.ajax({
 				type: "POST",
 				url: "/ctrt/insertCtrt",
@@ -357,7 +365,13 @@
 				rcvUserNm : $("#rcvUserNm").val()
 			}
 
-			$("#div_load_image").show();
+			$('body').waitMe({
+				effect: 'timer',
+				text: '계좌 조회 중입니다. 잠시만 기다려주십시오.',
+				bg: 'rgba(0,0,0,0.5)',
+				color: '#ffffff',
+				textPos: 'vertical',
+			});
 
 			$.ajax({
 				type: "GET",
@@ -372,11 +386,11 @@
 						openLayerPopup2('popAlert1');
 					}
 
-					$("#div_load_image").hide();
+					$("body").waitMe("hide");
 				},
 				error: function(error) {
 					alert("계좌주 정보 조회 실패");
-					$("#div_load_image").hide();
+					$("body").waitMe("hide");
 				}
 			});
 		}

@@ -35,8 +35,8 @@ public class SPCServiceImpl implements SPCService{
     private static final int CONN_TIME = 4000;
     private static final int READ_TIME = 4000;
 
-    private final static String T_NEW_WOLSAE_MID = "wel000663m";
-    private final static String T_NEW_WOLSAE_WELCOME_API_KEY = "66d14a4b4f81ea466efcb9ce2ecdf739";
+    private final static String T_NEW_WOLSAE_MID = "wel000701m";
+    private final static String T_NEW_WOLSAE_WELCOME_API_KEY = "bbc50b727bda7eca0c6aa4551fd8c6a0";
 
     @Autowired
     private SPCMapper spcMapper;

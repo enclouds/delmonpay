@@ -1,6 +1,8 @@
 package com.enclouds.delmonpay.ctrt.service;
 
 import com.enclouds.delmonpay.cmm.mail.MailSend;
+import com.enclouds.delmonpay.cmm.slack.dto.SlackDto;
+import com.enclouds.delmonpay.cmm.slack.sevice.SlackService;
 import com.enclouds.delmonpay.cmm.util.DateUtils;
 import com.enclouds.delmonpay.cmm.util.EncryptUtil;
 import com.enclouds.delmonpay.ctrt.dto.*;
@@ -36,9 +38,13 @@ public class CtrtServiceImpl implements CtrtService{
     private final static String LETS_SERVICE_CODE = "LETS";
 
     //비인증
-    private final static String T_NEW_WOLSAE_MID = "wel000556m";
-    private final static String T_NEW_WOLSAE_WELCOME_API_KEY = "1e015d613af434f4badbaf9efe5902ee";
-    private final static String T_NEW_WOLSAE_IV_KEY = "358240ef674f43f470bf1a1ed71e797c";
+    //private final static String T_NEW_WOLSAE_MID = "wel000556m";
+    //private final static String T_NEW_WOLSAE_WELCOME_API_KEY = "1e015d613af434f4badbaf9efe5902ee";
+    //private final static String T_NEW_WOLSAE_IV_KEY = "358240ef674f43f470bf1a1ed71e797c";
+
+    private final static String T_NEW_WOLSAE_MID = "wel000701m";
+    private final static String T_NEW_WOLSAE_WELCOME_API_KEY = "bbc50b727bda7eca0c6aa4551fd8c6a0";
+    private final static String T_NEW_WOLSAE_IV_KEY = "535c263209d5421d2005f5094e4e55d1";
 
     //private final static String T_NEW_WOLSAE_MID = "wel000663m";
     //private final static String T_NEW_WOLSAE_WELCOME_API_KEY = "66d14a4b4f81ea466efcb9ce2ecdf739";
@@ -52,6 +58,9 @@ public class CtrtServiceImpl implements CtrtService{
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SlackService slackService;
 
     @Override
     public int insertCtrt(CtrtDto ctrtDto) throws Exception {
@@ -78,14 +87,21 @@ public class CtrtServiceImpl implements CtrtService{
         UserDto userDto = userService.getUserInfo(ctrtDto.getUserId());
 
         //신청 메일 발송
-        MailSend mailSend = new MailSend();
+        /*MailSend mailSend = new MailSend();
         HashMap<String, Object> mailData = new HashMap<>();
         mailData.put("fromAddress", "delion1111@naver.com");
         mailData.put("toAddress", "delion0823@naver.com");
-        mailData.put("ccAddress", "paybank8001@daum.net;jangsos1111@naver.com;moumaleang2@gmail.com;bangmarket@naver.com;inhwanbuis@gmail.com;delion28@naver.com;delion96@naver.com;tnsgh8@naver.com;baeseongu@naver.com;mmkkop417@gmail.com");
+        mailData.put("ccAddress", "paybank8001@daum.net;jangsos1111@naver.com;moumaleang2@gmail.com;bangmarket@naver.com;delion28@naver.com;delion96@naver.com;tnsgh8@naver.com;baeseongu@naver.com;mmkkop417@gmail.com");
         mailData.put("title", "매장비서페이 신청");
         mailData.put("content", "매장비서페이 신청\n\n ·계정: " + ctrtDto.getUserId() + "\n ·상호명: " + userDto.getStoreNm() + "\n ·계약명: " + ctrtDto.getCtrtName());
-        mailSend.MailSend(mailData);
+        mailSend.MailSend(mailData);*/
+
+        //슬랙 메세지 전송
+        SlackDto slackDto = new SlackDto();
+        slackDto.setChannel("#월카결");
+        slackDto.setMessage("매장비서페이 신청\n\n ·계정: " + ctrtDto.getUserId() + "\n ·상호명: " + userDto.getStoreNm() + "\n ·계약명: " + ctrtDto.getCtrtName());
+
+        slackService.insertSlackMessage(slackDto);
 
         return result;
     }
@@ -127,6 +143,15 @@ public class CtrtServiceImpl implements CtrtService{
         }
 
         int result = ctrtMapper.updateCtrt(ctrtDto);
+
+        UserDto userDto = userService.getUserInfo(ctrtDto.getUserId());
+
+        //슬랙 메세지 전송
+        SlackDto slackDto = new SlackDto();
+        slackDto.setChannel("#월카결");
+        slackDto.setMessage("매장비서페이 신청\n\n ·계정: " + ctrtDto.getUserId() + "\n ·상호명: " + userDto.getStoreNm() + "\n ·계약명: " + ctrtDto.getCtrtName());
+
+        slackService.insertSlackMessage(slackDto);
 
         return result;
     }
@@ -440,14 +465,21 @@ public class CtrtServiceImpl implements CtrtService{
         UserDto userDto = userService.getUserInfo(ctrtDto.getUserId());
 
         //신청 메일 발송
-        MailSend mailSend = new MailSend();
+        /*MailSend mailSend = new MailSend();
         HashMap<String, Object> mailData = new HashMap<>();
         mailData.put("fromAddress", "delion1111@naver.com");
         mailData.put("toAddress", "delion0823@naver.com");
-        mailData.put("ccAddress", "paybank8001@daum.net;jangsos1111@naver.com;moumaleang2@gmail.com;bangmarket@naver.com;inhwanbuis@gmail.com;delion28@naver.com;delion96@naver.com;tnsgh8@naver.com;baeseongu@naver.com;mmkkop417@gmail.com");
+        mailData.put("ccAddress", "paybank8001@daum.net;jangsos1111@naver.com;moumaleang2@gmail.com;bangmarket@naver.com;delion28@naver.com;delion96@naver.com;tnsgh8@naver.com;baeseongu@naver.com;mmkkop417@gmail.com");
         mailData.put("title", "월세페이 재심사 신청");
         mailData.put("content", "월세페이 재심사 신청\n\n ·계정: [" + ctrtDto.getUserId() + "]\n ·상호명: [" + userDto.getStoreNm() + "]\n ·계약명: [" + ctrtDto.getCtrtName() + "]");
-        mailSend.MailSend(mailData);
+        mailSend.MailSend(mailData);*/
+
+        //슬랙 메세지 전송
+        SlackDto slackDto = new SlackDto();
+        slackDto.setChannel("#월카결");
+        slackDto.setMessage("월세페이 재심사 신청\n\n ·계정: [" + ctrtDto.getUserId() + "]\n ·상호명: [" + userDto.getStoreNm() + "]\n ·계약명: [" + ctrtDto.getCtrtName() + "]");
+
+        slackService.insertSlackMessage(slackDto);
     }
 
     /**

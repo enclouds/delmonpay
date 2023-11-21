@@ -32,6 +32,16 @@ public class IndexController {
 
     @RequestMapping(value="/")
     public ModelAndView index(HttpServletRequest request, HttpServletResponse response, @RequestParam String userId, @RequestParam String schYear, @RequestParam String schGbn) throws Exception{
+        ModelAndView mv = new ModelAndView("wolsae-skeleton");
+        mv.addObject("userId", userId);
+        mv.addObject("schYear", schYear);
+        mv.addObject("schGbn", schGbn);
+
+        return mv;
+    }
+
+    @RequestMapping(value="/index")
+    public ModelAndView index2(HttpServletRequest request, HttpServletResponse response, @RequestParam String userId, @RequestParam String schYear, @RequestParam String schGbn) throws Exception{
         ModelAndView mv = new ModelAndView("index");
 
         UserDto userDto = userService.getUserInfo(userId);
@@ -84,6 +94,13 @@ public class IndexController {
             out.println("<script>alert('사용자 정보가 없습니다.'); JavascriptInterface.jsBack();</script>");
             out.flush();
         }
+
+        return mv;
+    }
+
+    @RequestMapping(value="/skeleton")
+    public ModelAndView skeleton(HttpServletRequest request) throws Exception{
+        ModelAndView mv = new ModelAndView("test/wolsae-skeleton");
 
         return mv;
     }

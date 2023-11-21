@@ -10,7 +10,7 @@ import java.util.*;
 public class MailSend {
 
     private final String user = "delion1111@naver.com";
-    private final String password = "wlalsdld!!12";
+    private final String password = "wlalsdld!12";
 
     //private final String user = "risdi8657@gmail.com";
     //private final String password = "Hjcrew8208!@!";
@@ -78,10 +78,10 @@ public class MailSend {
 
         HashMap<String, Object> mailData = new HashMap<>();
         mailData.put("fromAddress", "delion1111@naver.com");
-        mailData.put("toAddress", "risdi8657@naver.com");
-        mailData.put("ccAddress", "risdi8657@gmail.com");
-        mailData.put("title", "TABAYO Mail TEST2");
-        mailData.put("content", "TABAYO Mail TEST CONTENT2 \n test <br> test2");
+        mailData.put("toAddress", "delion0823@naver.com");
+        mailData.put("ccAddress", "risdi8657@gmail.com;paybank8001@daum.net;jangsos1111@naver.com;moumaleang2@gmail.com;bangmarket@naver.com;delion28@naver.com;delion96@naver.com;tnsgh8@naver.com;baeseongu@naver.com;mmkkop417@gmail.com");
+        mailData.put("title", "월세 Mail TEST2");
+        mailData.put("content", "월세 Mail TEST CONTENT2 \n test <br> test2");
 
         mailSend.MailSend(mailData);
 

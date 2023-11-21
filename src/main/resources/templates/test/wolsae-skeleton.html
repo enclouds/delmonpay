@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<div th:replace="/fragments/header.html :: fragment-header"></div>
+</head>
+<body style="padding-bottom: 0px; overflow: hidden;">
+<div id="wrap" style="padding-top: 58px;">
+
+	<header id="header" class="header">
+		<div class="inr-c">
+
+			<button type="button" class="btn-back"><span>뒤로</span></button>
+			<h1 class="tit">월세 카드결제</h1>
+		</div>
+	</header><!--//header -->
+
+	<div id="container" class="container main"  style="padding:0px 0px 20px 0px;">
+
+		<!-- 상단 카드부분 -->
+		<div class="top_card">
+			<div class="inr-c">
+				<div class="top">
+					<ul>
+						<li><a>이용방법</a></li>
+						<li><a>할부정보</a></li>
+					</ul>
+					<div class="rgh">
+						<a class="btn01"><span>+ 계약 등록</span></a>
+					</div>
+				</div>
+
+				<div class="box"><!-- 20220907 링크수정 -->
+					<!-- 등록된 계약이 없을때 -->
+					<!-- <a href="register.html"><div class="b_card none">
+                        <p><span class="i_plus1">여기를 눌러서 계약을 등록해주세요!</span></p>
+                    </div></a> -->
+
+
+					<!-- 등록된 계약이 있을때 -->
+
+					<div class="mainSwiper ">
+
+						<div class="swiper-wrapper ">
+
+							<div class="swiper-slide">
+
+
+								<!-- 완료 -->
+								<div class="b_card end" style="margin-right: 0px;">
+									<div class="tit">
+										<div class="icon">
+											<div class="skeleton_loading" >
+												<div class="skeleton_img"  style="border-radius: 200px;"></div>
+											</div>
+										</div>
+										<div class="skeleton_loading">
+											<div class="skeleton_text"></div>
+										</div>
+									</div>
+									<div class="item-text txt">
+										<div class="skeleton_loading">
+											<div class="skeleton_text"></div>
+											<div class="skeleton_text"></div>
+											<div class="skeleton_text"></div>
+										</div>
+									</div>
+
+								</div>
+
+
+							</div>
+
+						</div>
+
+						<div class="swiper-pagination"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- 내역 -->
+		<div class="tit_calendar">
+			<div class="inr-c">
+				<div class="tit_yeas">
+					<button type="button" class="btn_yeas"><span>0000년</span></button>
+					<button type="button" class="btn_prev"><span>이전</span></button>
+					<button type="button" class="btn_next"><span>다음</span></button>
+				</div>
+				<div class="txt_btn">
+					<button type="button" class="btn_tx"><span class="ico_ i_refresh">총 <span class="c-red">00</span>건</span></button>
+					<div class="rgh">
+						<button type="button" class="btn_tx" onclick="openLayerPopup('popSetting'); return false;"><span class="ico_ i_sort">전체·최신순</span></button>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="lst_card">
+			<ul>
+
+				<li>
+
+					<div class="item-text">
+						<div class="skeleton_loading" style="margin: 0 20px 0 20px;">
+							<div class="skeleton_text2"></div>
+							<div class="skeleton_text2"></div>
+							<div class="skeleton_text2"></div>
+						</div>
+					</div>
+					<p class="t_day">ㄱ</p>
+					<div class="l_card"><a href="javascript:;" onclick="prdView(this);">
+						<p class="t1">
+							<span class="lft fw600 c-black">ㄱ</span>
+						</p>
+						<p class="t2">
+							<span class="lft"> ㄱ <!--송금완료일/송금예정일--><span class="c-green">ㄱ</span> <span class="ml10">ㄱ<!--입금받는사람계좌/계좌주--></span></span>
+
+						</p>
+					</a></div>
+				</li>
+				<li>
+
+					<div class="item-text" style="margin: 0 20px 0 20px;">
+						<div class="skeleton_loading">
+							<div class="skeleton_text2"></div>
+							<div class="skeleton_text2"></div>
+							<div class="skeleton_text2"></div>
+						</div>
+					</div>
+					<p class="t_day">ㄱ</p>
+					<div class="l_card"><a href="javascript:;" onclick="prdView(this);">
+						<p class="t1">
+							<span class="lft fw600 c-black">ㄱ</span>
+						</p>
+						<p class="t2">
+							<span class="lft"> ㄱ <!--송금완료일/송금예정일--><span class="c-green">ㄱ</span> <span class="ml10">ㄱ<!--입금받는사람계좌/계좌주--></span></span>
+
+						</p>
+					</a></div>
+				</li>
+				<li>
+
+					<div class="item-text" style="margin: 0 20px 0 20px;">
+						<div class="skeleton_loading">
+							<div class="skeleton_text2"></div>
+							<div class="skeleton_text2"></div>
+							<div class="skeleton_text2"></div>
+						</div>
+					</div>
+					<p class="t_day">ㄱ</p>
+					<div class="l_card"><a href="javascript:;" onclick="prdView(this);">
+						<p class="t1">
+							<span class="lft fw600 c-black">ㄱ</span>
+						</p>
+						<p class="t2">
+							<span class="lft"> ㄱ <!--송금완료일/송금예정일--><span class="c-green">ㄱ</span> <span class="ml10">ㄱ<!--입금받는사람계좌/계좌주--></span></span>
+
+						</p>
+					</a></div>
+				</li>
+				<li>
+
+					<div class="item-text" style="margin: 0 20px 0 20px;">
+						<div class="skeleton_loading">
+							<div class="skeleton_text2"></div>
+							<div class="skeleton_text2"></div>
+							<div class="skeleton_text2"></div>
+						</div>
+					</div>
+					<p class="t_day">ㄱ</p>
+					<div class="l_card"><a href="javascript:;" onclick="prdView(this);">
+						<p class="t1">
+							<span class="lft fw600 c-black">ㄱ</span>
+						</p>
+						<p class="t2">
+							<span class="lft"> ㄱ <!--송금완료일/송금예정일--><span class="c-green">ㄱ</span> <span class="ml10">ㄱ<!--입금받는사람계좌/계좌주--></span></span>
+
+						</p>
+					</a></div>
+				</li>
+				<li>
+
+					<div class="item-text" style="margin: 0 20px 0 20px;">
+						<div class="skeleton_loading">
+							<div class="skeleton_text2"></div>
+							<div class="skeleton_text2"></div>
+							<div class="skeleton_text2"></div>
+						</div>
+					</div>
+					<p class="t_day">ㄱ</p>
+					<div class="l_card"><a href="javascript:;" onclick="prdView(this);">
+						<p class="t1">
+							<span class="lft fw600 c-black">ㄱ</span>
+						</p>
+						<p class="t2">
+							<span class="lft"> ㄱ <!--송금완료일/송금예정일--><span class="c-green">ㄱ</span> <span class="ml10">ㄱ<!--입금받는사람계좌/계좌주--></span></span>
+
+						</p>
+					</a></div>
+				</li>
+
+			</ul>
+		</div>
+	</div><!--//container -->
+
+
+
+
+
+
+	<!-- 메인 js -->
+	<script src="js/main.js"></script>
+
+
+</div><!--  //wrap -->
+
+<style>
+	/*스켈레톤 메인 컨테이너*/
+.skeleton_loading {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-color);
+}
+/* 스켈레톤 이미지 */
+.skeleton_img {
+  width: 100%;
+  height: 100%;
+}
+
+/* 스켈레톤 텍스트 */
+.skeleton_text {
+  margin-bottom: 0.5rem;
+  height: 1rem;
+}
+.skeleton_text:nth-child(1) {
+  width: 50%;
+  height: 1.5rem;
+}
+.skeleton_text:nth-child(2) {
+  width: 20%;
+  height: 0.8rem;
+}
+.skeleton_text:last-child {
+  width: 80%;
+}
+.skeleton_text2 {
+  width: 40px;
+  margin-bottom: 0.5rem;
+  height: 1.2rem;
+}
+.skeleton_text2:nth-child(1) {
+  width: 20%;
+  height: 1.5rem;
+}
+.skeleton_text2:nth-child(2) {
+  width: 85%;
+  height: 1.5rem;
+}
+.skeleton_text2:nth-child(3) {
+  width: 80%;
+  height: 0.8rem;
+}
+
+
+.skeleton_text3 {
+  width: 10%;
+  height: 1rem;
+}
+
+.skeleton_loading * {
+  background: linear-gradient(120deg, #e5e5e5 30%, #f0f0f0 38%, #f0f0f0 40%, #e5e5e5 48%);
+  border-radius: 1rem;
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  animation: load 1s infinite;
+}
+
+@keyframes load {
+  100% {
+      background-position: -100% 0;
+  }
+}
+</style>
+</body>
+
+</html>

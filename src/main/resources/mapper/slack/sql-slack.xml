@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.enclouds.delmonpay.cmm.slack.mapper.SlackMapper">
+
+	<insert id="insertSlackMessage" parameterType="com.enclouds.delmonpay.cmm.slack.dto.SlackDto">
+		INSERT INTO dcp_slack
+		( channel
+		, message
+		, send_yn
+		, reg_date)
+		VALUES
+		( #{channel}
+		, #{message}
+		, 'N'
+		, NOW())
+	</insert>
+
+</mapper>
+
+
